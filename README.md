@@ -50,6 +50,12 @@ Layout parameters:
 
 	* debugDraw - draw debug information
 
+	* orientation - line direction. Use one of the following values:
+
+		* horizontal - line will be in horizontal direction, linebreak will create new line
+
+		* vertical - line will be in vertical direction, linebreak will create new column
+
 Child layout parameters:
 
 	* layout_horizontalSpacing - override default horizontal spacing
@@ -57,12 +63,6 @@ Child layout parameters:
 	* layout_verticalSpacing - override default vertical spacing
 
 	* layout_newLine - brake line before current element even if there is enough place in the current line.
-
-	* orientation - line direction. Use one of the following values:
-
-		* horizontal - line will be in horizontal direction, linebreak will create new line
-
-		* vertical - line will be in vertical direction, linebreak will create new column
 
 ## Copyrights
 
