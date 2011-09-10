@@ -15,7 +15,7 @@ import org.apmem.tools.R;
  * Using example:
  * <?xml version="4.0" encoding="utf-8"?>
 <com.example.android.layout.FlowLayout
-	xmlns:f="http://schemas.android.com/apk/res/com.example.android.layout"
+	xmlns:f="http://schemas.android.com/apk/res/org.apmem.tools.layouts.FlowLayout"
     xmlns:android="http://schemas.android.com/apk/res/android"
     f:horizontalSpacing="6dip"
     f:verticalSpacing="12dip"
@@ -41,10 +41,10 @@ public class FlowLayout extends ViewGroup {
     public FlowLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.org_apmem_tools_layouts_FlowLayout);
+        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FlowLayout);
 		try {
-			mHorizontalSpacing = a.getDimensionPixelSize(R.styleable.org_apmem_tools_layouts_FlowLayout_horizontalSpacing, 0);
-			mVerticalSpacing = a.getDimensionPixelSize(R.styleable.org_apmem_tools_layouts_FlowLayout_verticalSpacing, 0);
+			mHorizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0);
+			mVerticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
 		} finally {
 			a.recycle();
 		}
@@ -174,10 +174,10 @@ public class FlowLayout extends ViewGroup {
         public LayoutParams(Context context, AttributeSet attrs) {
             super(context, attrs);
 
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.org_apmem_tools_layouts_FlowLayout_LayoutParams);
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FlowLayout_LayoutParams);
 			try {
-				horizontalSpacing = a.getDimensionPixelSize(R.styleable.org_apmem_tools_layouts_FlowLayout_LayoutParams_layout_breakLine, -1);
-				breakLine = a.getBoolean(R.styleable.org_apmem_tools_layouts_FlowLayout_LayoutParams_layout_breakLine, false);
+				horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_horizontalSpacing, -1);
+				breakLine = a.getBoolean(R.styleable.FlowLayout_LayoutParams_layout_breakLine, false);
 			} finally {
 				a.recycle();
 			}
