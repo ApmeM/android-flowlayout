@@ -34,29 +34,30 @@ import org.apmem.tools.R;
  * </com.example.android.layout.FlowLayout>
  */
 public class FlowLayout extends ViewGroup {
+    public static final int HORIZONTAL = 0;
+    public static final int VERTICAL = 1;
+
     private int horizontalSpacing = 0;
     private int verticalSpacing = 0;
-    private Paint paint;
+    private int orientation = 0;
+    private boolean debugDraw = false;
 
     public FlowLayout(Context context) {
         super(context);
 
         this.readStyleParameters(context, null);
-        this.initializePaint();
     }
 
     public FlowLayout(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
 
         this.readStyleParameters(context, attributeSet);
-        this.initializePaint();
     }
 
     public FlowLayout(Context context, AttributeSet attributeSet, int defStyle) {
         super(context, attributeSet, defStyle);
 
         this.readStyleParameters(context, attributeSet);
-        this.initializePaint();
     }
 
     @Override
@@ -188,34 +189,65 @@ public class FlowLayout extends ViewGroup {
         try {
             horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0);
             verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
+            orientation = a.getInteger(R.styleable.FlowLayout_orientation, HORIZONTAL);
+            debugDraw = a.getBoolean(R.styleable.FlowLayout_debugDraw, false);
         } finally {
             a.recycle();
         }
     }
 
-    private void initializePaint() {
-        paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setColor(0xffff0000);
-        paint.setStrokeWidth(2.0f);
-    }
-
     private void drawDebugInfo(Canvas canvas, View child) {
+        if (!debugDraw) {
+            return;
+        }
+
+        Paint childPaint = this.createPaint(0xffffff00);
+        Paint layoutPaint = this.createPaint(0xff00ff00);
+        Paint newLinePaint = this.createPaint(0xffff0000);
+
         LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
         if (lp.horizontalSpacing > 0) {
             float x = child.getRight();
             float y = child.getTop() + child.getHeight() / 2.0f;
-            canvas.drawLine(x, y - 4.0f, x, y + 4.0f, paint);
-            canvas.drawLine(x, y, x + lp.horizontalSpacing, y, paint);
-            canvas.drawLine(x + lp.horizontalSpacing, y - 4.0f, x + lp.horizontalSpacing, y + 4.0f, paint);
+            canvas.drawLine(x, y, x + lp.horizontalSpacing, y, childPaint);
+            canvas.drawLine(x + lp.horizontalSpacing - 4.0f, y - 4.0f, x + lp.horizontalSpacing, y, childPaint);
+            canvas.drawLine(x + lp.horizontalSpacing - 4.0f, y + 4.0f, x + lp.horizontalSpacing, y, childPaint);
+        } else if (this.horizontalSpacing > 0) {
+            float x = child.getRight();
+            float y = child.getTop() + child.getHeight() / 2.0f;
+            canvas.drawLine(x, y, x + this.horizontalSpacing, y, layoutPaint);
+            canvas.drawLine(x + this.horizontalSpacing - 4.0f, y - 4.0f, x + this.horizontalSpacing, y, layoutPaint);
+            canvas.drawLine(x + this.horizontalSpacing - 4.0f, y + 4.0f, x + this.horizontalSpacing, y, layoutPaint);
+        }
+
+        if (lp.verticalSpacing > 0) {
+            float x = child.getLeft() + child.getWidth() / 2.0f;
+            float y = child.getBottom();
+            canvas.drawLine(x, y, x, y + lp.verticalSpacing, childPaint);
+            canvas.drawLine(x - 4.0f, y + lp.verticalSpacing - 4.0f, x, y + lp.verticalSpacing, childPaint);
+            canvas.drawLine(x + 4.0f, y + lp.verticalSpacing - 4.0f, x, y + lp.verticalSpacing, childPaint);
+        } else if (this.verticalSpacing > 0) {
+            float x = child.getLeft() + child.getWidth() / 2.0f;
+            float y = child.getBottom();
+            canvas.drawLine(x, y, x, y + this.verticalSpacing, layoutPaint);
+            canvas.drawLine(x - 4.0f, y + this.verticalSpacing - 4.0f, x, y + this.verticalSpacing, layoutPaint);
+            canvas.drawLine(x + 4.0f, y + this.verticalSpacing - 4.0f, x, y + this.verticalSpacing, layoutPaint);
         }
 
         if (lp.newLine) {
             float x = child.getLeft();
             float y = child.getTop() + child.getHeight() / 2.0f;
-            canvas.drawLine(x, y, x, y + 6.0f, paint);
-            canvas.drawLine(x, y + 6.0f, x + 6.0f, y + 6.0f, paint);
+            canvas.drawLine(x, y - 4.0f, x, y + 4.0f, newLinePaint);
         }
+    }
+
+    private Paint createPaint(int color) {
+        Paint paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setColor(color);
+        paint.setStrokeWidth(2.0f);
+        return paint;
     }
 
     public static class LayoutParams extends ViewGroup.LayoutParams {

@@ -44,6 +44,8 @@ Layout parameters:
 
 	* verticalSpacing - default vertical spacing between elements
 
+	* debugDraw - draw debug information
+
 Child layout parameters:
 
 	* layout_horizontalSpacing - override default horizontal spacing
