@@ -38,21 +38,25 @@ public class FlowLayout extends ViewGroup {
     private int verticalSpacing;
     private Paint paint;
 
+    public FlowLayout(Context context) {
+        super(context);
+
+        this.readStyleParameters(context, null);
+        this.initializePaint();
+    }
+
     public FlowLayout(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
 
-        TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
-		try {
-			horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0);
-			verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
-		} finally {
-			a.recycle();
-		}
+        this.readStyleParameters(context, attributeSet);
+        this.initializePaint();
+    }
 
-        paint = new Paint();
-        paint.setAntiAlias(true);
-        paint.setColor(0xffff0000);
-        paint.setStrokeWidth(2.0f);
+    public FlowLayout(Context context, AttributeSet attributeSet, int defStyle) {
+        super(context, attributeSet, defStyle);
+
+        this.readStyleParameters(context, attributeSet);
+        this.initializePaint();
     }
 
     @Override
@@ -110,8 +114,7 @@ public class FlowLayout extends ViewGroup {
         width += getPaddingRight();
         height += getPaddingBottom();
 
-        setMeasuredDimension(resolveSize(width, widthMeasureSpec),
-                resolveSize(height, heightMeasureSpec));
+        this.setMeasuredDimension(resolveSize(width, widthMeasureSpec), resolveSize(height, heightMeasureSpec));
     }
 
     @Override
@@ -127,20 +130,7 @@ public class FlowLayout extends ViewGroup {
     @Override
     protected boolean drawChild(Canvas canvas, View child, long drawingTime) {
         boolean more = super.drawChild(canvas, child, drawingTime);
-        LayoutParams lp = (LayoutParams) child.getLayoutParams();
-        if (lp.horizontalSpacing > 0) {
-            float x = child.getRight();
-            float y = child.getTop() + child.getHeight() / 2.0f;
-            canvas.drawLine(x, y - 4.0f, x, y + 4.0f, paint);
-            canvas.drawLine(x, y, x + lp.horizontalSpacing, y, paint);
-            canvas.drawLine(x + lp.horizontalSpacing, y - 4.0f, x + lp.horizontalSpacing, y + 4.0f, paint);
-        }
-        if (lp.breakLine) {
-            float x = child.getRight();
-            float y = child.getTop() + child.getHeight() / 2.0f;
-            canvas.drawLine(x, y, x, y + 6.0f, paint);
-            canvas.drawLine(x, y + 6.0f, x + 6.0f, y + 6.0f, paint);
-        }
+        this.drawDebugInfo(canvas, child);
         return more;
     }
 
@@ -164,6 +154,39 @@ public class FlowLayout extends ViewGroup {
         return new LayoutParams(p.width, p.height);
     }
 
+    private void readStyleParameters(Context context, AttributeSet attributeSet){
+            TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
+            try {
+                horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0);
+                verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
+            } finally {
+                a.recycle();
+            }
+    }
+    private void initializePaint(){
+        paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setColor(0xffff0000);
+        paint.setStrokeWidth(2.0f);
+    }
+
+    private void drawDebugInfo(Canvas canvas, View child) {
+        LayoutParams lp = (LayoutParams) child.getLayoutParams();
+        if (lp.horizontalSpacing > 0) {
+            float x = child.getRight();
+            float y = child.getTop() + child.getHeight() / 2.0f;
+            canvas.drawLine(x, y - 4.0f, x, y + 4.0f, paint);
+            canvas.drawLine(x, y, x + lp.horizontalSpacing, y, paint);
+            canvas.drawLine(x + lp.horizontalSpacing, y - 4.0f, x + lp.horizontalSpacing, y + 4.0f, paint);
+        }
+        if (lp.breakLine) {
+            float x = child.getRight();
+            float y = child.getTop() + child.getHeight() / 2.0f;
+            canvas.drawLine(x, y, x, y + 6.0f, paint);
+            canvas.drawLine(x, y + 6.0f, x + 6.0f, y + 6.0f, paint);
+        }
+    }
+
     public static class LayoutParams extends ViewGroup.LayoutParams {
         int x;
         int y;
@@ -171,10 +194,10 @@ public class FlowLayout extends ViewGroup {
         public int horizontalSpacing;
         public boolean breakLine;
 
-        public LayoutParams(Context context, AttributeSet attrs) {
-            super(context, attrs);
+        public LayoutParams(Context context, AttributeSet attributeSet) {
+            super(context, attributeSet);
 
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FlowLayout_LayoutParams);
+            TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout_LayoutParams);
 			try {
 				horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_horizontalSpacing, -1);
 				breakLine = a.getBoolean(R.styleable.FlowLayout_LayoutParams_layout_breakLine, false);
@@ -184,8 +207,8 @@ public class FlowLayout extends ViewGroup {
 
         }
 
-        public LayoutParams(int w, int h) {
-            super(w, h);
+        public LayoutParams(int width, int height) {
+            super(width, height);
         }
     }
 }
