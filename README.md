@@ -27,6 +27,10 @@ To change default horizontal and vertical spacing between elements in layout use
 	f:horizontalSpacing="6dip"
 	f:verticalSpacing="12dip"
 
+To change default direction use the following code
+
+	f:orientation="vertical"
+
 To override default spacing use the following LayoutParameter in the child View element:
 
 	f:layout_horizontalSpacing="32dip"
@@ -53,6 +57,12 @@ Child layout parameters:
 	* layout_verticalSpacing - override default vertical spacing
 
 	* layout_newLine - brake line before current element even if there is enough place in the current line.
+
+	* orientation - line direction. Use one of the following values:
+
+		* horizontal - line will be in horizontal direction, linebreak will create new line
+
+		* vertical - line will be in vertical direction, linebreak will create new column
 
 ## Copyrights
 
