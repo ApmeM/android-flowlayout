@@ -1,0 +1,10 @@
+<resources>
+    <declare-styleable name="org.apmem.tools.layouts.FlowLayout">
+        <attr name="horizontalSpacing" format="dimension" />
+        <attr name="verticalSpacing" format="dimension" />
+    </declare-styleable>
+    <declare-styleable name="org.apmem.tools.layouts.FlowLayout_LayoutParams">
+    	<attr name="layout_breakLine" format="boolean" />
+        <attr name="layout_horizontalSpacing" format="dimension" />
+    </declare-styleable>
+</resources>
