@@ -15,7 +15,7 @@ import org.apmem.tools.R;
  * Using example:
  * <?xml version="4.0" encoding="utf-8"?>
 <com.example.android.layout.FlowLayout
-	xmlns:f="http://schemas.android.com/apk/res/org.apmem.tools.layouts.FlowLayout"
+	xmlns:f="http://schemas.android.com/apk/res/org.apmem.android"
     xmlns:android="http://schemas.android.com/apk/res/android"
     f:horizontalSpacing="6dip"
     f:verticalSpacing="12dip"
@@ -34,25 +34,25 @@ import org.apmem.tools.R;
 </com.example.android.layout.FlowLayout>
  */
 public class FlowLayout extends ViewGroup {
-    private int mHorizontalSpacing;
-    private int mVerticalSpacing;
-    private Paint mPaint;
+    private int horizontalSpacing;
+    private int verticalSpacing;
+    private Paint paint;
 
-    public FlowLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
+    public FlowLayout(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
 
-        TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.FlowLayout);
+        TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
 		try {
-			mHorizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0);
-			mVerticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
+			horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0);
+			verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
 		} finally {
 			a.recycle();
 		}
 
-        mPaint = new Paint();
-        mPaint.setAntiAlias(true);
-        mPaint.setColor(0xffff0000);
-        mPaint.setStrokeWidth(2.0f);
+        paint = new Paint();
+        paint.setAntiAlias(true);
+        paint.setColor(0xffff0000);
+        paint.setStrokeWidth(2.0f);
     }
 
     @Override
@@ -78,13 +78,13 @@ public class FlowLayout extends ViewGroup {
             super.measureChild(child, widthMeasureSpec, heightMeasureSpec);
 
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            spacing = mHorizontalSpacing;
+            spacing = horizontalSpacing;
             if (lp.horizontalSpacing >= 0) {
                 spacing = lp.horizontalSpacing;
             }
 
             if (growHeight && (breakLine || currentWidth + child.getMeasuredWidth() > widthSize)) {
-                height += currentHeight + mVerticalSpacing;
+                height += currentHeight + verticalSpacing;
                 currentHeight = 0;
                 width = Math.max(width, currentWidth - spacing);
                 currentWidth = getPaddingLeft();
@@ -131,15 +131,15 @@ public class FlowLayout extends ViewGroup {
         if (lp.horizontalSpacing > 0) {
             float x = child.getRight();
             float y = child.getTop() + child.getHeight() / 2.0f;
-            canvas.drawLine(x, y - 4.0f, x, y + 4.0f, mPaint);
-            canvas.drawLine(x, y, x + lp.horizontalSpacing, y, mPaint);
-            canvas.drawLine(x + lp.horizontalSpacing, y - 4.0f, x + lp.horizontalSpacing, y + 4.0f, mPaint);
+            canvas.drawLine(x, y - 4.0f, x, y + 4.0f, paint);
+            canvas.drawLine(x, y, x + lp.horizontalSpacing, y, paint);
+            canvas.drawLine(x + lp.horizontalSpacing, y - 4.0f, x + lp.horizontalSpacing, y + 4.0f, paint);
         }
         if (lp.breakLine) {
             float x = child.getRight();
             float y = child.getTop() + child.getHeight() / 2.0f;
-            canvas.drawLine(x, y, x, y + 6.0f, mPaint);
-            canvas.drawLine(x, y + 6.0f, x + 6.0f, y + 6.0f, mPaint);
+            canvas.drawLine(x, y, x, y + 6.0f, paint);
+            canvas.drawLine(x, y + 6.0f, x + 6.0f, y + 6.0f, paint);
         }
         return more;
     }
