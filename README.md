@@ -8,18 +8,19 @@ Extended linear layout that wrap its content when there is no place in the curre
 
 Demonstration not available yet.
 
-https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_album.png
+Horizontal:
 
-https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_album.png
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_portrait.png)
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_album.png)
 
-https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_portrait.png
+Vertical:
 
-https://github.com/ApmeM/android-flowlayout/raw/master/img/no_debug.png
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/vertical_portrait.png)
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/vertical_album.png)
 
-https://github.com/ApmeM/android-flowlayout/raw/master/img/vertical_album.png
+Debug is switched off:
 
-https://github.com/ApmeM/android-flowlayout/raw/master/img/vertical_portrait.png
-
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/no_debug.png)
 
 ## Installation and usage
 
