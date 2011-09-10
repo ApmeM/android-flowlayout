@@ -11,31 +11,31 @@ import org.apmem.tools.R;
 
 /**
  * User: Romain Guy
- *
+ * <p/>
  * Using example:
  * <?xml version="4.0" encoding="utf-8"?>
-<com.example.android.layout.FlowLayout
-	xmlns:f="http://schemas.android.com/apk/res/org.apmem.android"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    f:horizontalSpacing="6dip"
-    f:verticalSpacing="12dip"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:paddingLeft="6dip"
-    android:paddingTop="6dip"
-    android:paddingRight="12dip">
-	<Button
-	    android:layout_width="wrap_content"
-	    android:layout_height="wrap_content"
-	    f:layout_horizontalSpacing="32dip"
-	    f:layout_breakLine="true"
-	    android:text="Cancel" />
-
-</com.example.android.layout.FlowLayout>
+ * <com.example.android.layout.FlowLayout
+ * xmlns:f="http://schemas.android.com/apk/res/org.apmem.android"
+ * xmlns:android="http://schemas.android.com/apk/res/android"
+ * f:horizontalSpacing="6dip"
+ * f:verticalSpacing="12dip"
+ * android:layout_width="wrap_content"
+ * android:layout_height="wrap_content"
+ * android:paddingLeft="6dip"
+ * android:paddingTop="6dip"
+ * android:paddingRight="12dip">
+ * <Button
+ * android:layout_width="wrap_content"
+ * android:layout_height="wrap_content"
+ * f:layout_horizontalSpacing="32dip"
+ * f:layout_breakLine="true"
+ * android:text="Cancel" />
+ * <p/>
+ * </com.example.android.layout.FlowLayout>
  */
 public class FlowLayout extends ViewGroup {
-    private int horizontalSpacing;
-    private int verticalSpacing;
+    private int horizontalSpacing = 0;
+    private int verticalSpacing = 0;
     private Paint paint;
 
     public FlowLayout(Context context) {
@@ -61,60 +61,89 @@ public class FlowLayout extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int widthSize = MeasureSpec.getSize(widthMeasureSpec) - getPaddingRight();
-        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int sizeWidth = MeasureSpec.getSize(widthMeasureSpec) - this.getPaddingRight() - this.getPaddingLeft();
+        int sizeHeight = MeasureSpec.getSize(widthMeasureSpec) - this.getPaddingRight() - this.getPaddingLeft();
 
-        boolean growHeight = widthMode != MeasureSpec.UNSPECIFIED;
+        int modeWidth = MeasureSpec.getMode(widthMeasureSpec);
+        int modeHeight = MeasureSpec.getMode(heightMeasureSpec);
 
-        int width = 0;
-        int height = getPaddingTop();
+        int lineHeightWithSpacing = 0;
+        int lineHeight = 0;
+        int lineWidthWithSpacing = 0;
+        int lineWidth;
 
-        int currentWidth = getPaddingLeft();
-        int currentHeight = 0;
-
-        boolean breakLine = false;
-        boolean newLine = false;
-        int spacing = 0;
+        int controlMaxWidth = 0;
+        int controlMaxHeight = 0;
+        int prevLinePosY = 0;
 
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
-            View child = getChildAt(i);
-            super.measureChild(child, widthMeasureSpec, heightMeasureSpec);
+            final View child = getChildAt(i);
+            if (child.getVisibility() == GONE) {
+                continue;
+            }
+
+            child.measure(
+                    MeasureSpec.makeMeasureSpec(sizeWidth, modeWidth == MeasureSpec.EXACTLY ? MeasureSpec.AT_MOST : modeWidth),
+                    MeasureSpec.makeMeasureSpec(sizeHeight, modeHeight == MeasureSpec.EXACTLY ? MeasureSpec.AT_MOST : modeHeight)
+            );
 
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            spacing = horizontalSpacing;
-            if (lp.horizontalSpacing >= 0) {
-                spacing = lp.horizontalSpacing;
+
+            int hSpacing = this.getHorizontalSpacing(lp);
+            int vSpacing = this.getVerticalSpacing(lp);
+
+            int childWidth = child.getMeasuredWidth();
+            int childHeight = child.getMeasuredHeight();
+
+            /* depend on orientation */
+            lineWidth = lineWidthWithSpacing + childWidth;
+            lineWidthWithSpacing = lineWidth + hSpacing;
+
+            boolean newLine = lp.newLine || (modeWidth != MeasureSpec.UNSPECIFIED && lineWidth > sizeWidth);
+            if (newLine) {
+                prevLinePosY = prevLinePosY + lineHeightWithSpacing;
+
+                lineHeight = childHeight;
+                lineHeightWithSpacing = childHeight + vSpacing;
+
+                lineWidth = childWidth;
+                lineWidthWithSpacing = lineWidth + hSpacing;
             }
 
-            if (growHeight && (breakLine || currentWidth + child.getMeasuredWidth() > widthSize)) {
-                height += currentHeight + verticalSpacing;
-                currentHeight = 0;
-                width = Math.max(width, currentWidth - spacing);
-                currentWidth = getPaddingLeft();
-                newLine = true;
-            } else {
-                newLine = false;
-            }
+            lineHeightWithSpacing = Math.max(lineHeightWithSpacing, childHeight + vSpacing);
+            lineHeight = Math.max(lineHeight, childHeight);
 
-            lp.x = currentWidth;
-            lp.y = height;
+            controlMaxWidth = Math.max(controlMaxWidth, lineWidth);
+            controlMaxHeight = prevLinePosY + lineHeight;
 
-            currentWidth += child.getMeasuredWidth() + spacing;
-            currentHeight = Math.max(currentHeight, child.getMeasuredHeight());
+            int posX = getPaddingLeft() + lineWidth - childWidth;
+            int posY = getPaddingTop() + prevLinePosY;
 
-            breakLine = lp.breakLine;
+            lp.setPosition(posX, posY);
         }
 
-        if (!newLine) {
-            height += currentHeight;
-            width = Math.max(width, currentWidth - spacing);
+        this.setMeasuredDimension(resolveSize(controlMaxWidth, widthMeasureSpec), resolveSize(controlMaxHeight, heightMeasureSpec));
+    }
+
+    private int getVerticalSpacing(LayoutParams lp) {
+        int vSpacing;
+        if (lp.verticalSpacingSpecified()) {
+            vSpacing = lp.verticalSpacing;
+        } else {
+            vSpacing = this.verticalSpacing;
         }
+        return vSpacing;
+    }
 
-        width += getPaddingRight();
-        height += getPaddingBottom();
-
-        this.setMeasuredDimension(resolveSize(width, widthMeasureSpec), resolveSize(height, heightMeasureSpec));
+    private int getHorizontalSpacing(LayoutParams lp) {
+        int hSpacing;
+        if (lp.horizontalSpacingSpecified()) {
+            hSpacing = lp.horizontalSpacing;
+        } else {
+            hSpacing = this.horizontalSpacing;
+        }
+        return hSpacing;
     }
 
     @Override
@@ -145,25 +174,26 @@ public class FlowLayout extends ViewGroup {
     }
 
     @Override
-    public LayoutParams generateLayoutParams(AttributeSet attrs) {
-        return new LayoutParams(getContext(), attrs);
+    public LayoutParams generateLayoutParams(AttributeSet attributeSet) {
+        return new LayoutParams(getContext(), attributeSet);
     }
 
     @Override
     protected LayoutParams generateLayoutParams(ViewGroup.LayoutParams p) {
-        return new LayoutParams(p.width, p.height);
+        return new LayoutParams(p);
     }
 
-    private void readStyleParameters(Context context, AttributeSet attributeSet){
-            TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
-            try {
-                horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0);
-                verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
-            } finally {
-                a.recycle();
-            }
+    private void readStyleParameters(Context context, AttributeSet attributeSet) {
+        TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
+        try {
+            horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0);
+            verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
+        } finally {
+            a.recycle();
+        }
     }
-    private void initializePaint(){
+
+    private void initializePaint() {
         paint = new Paint();
         paint.setAntiAlias(true);
         paint.setColor(0xffff0000);
@@ -179,8 +209,9 @@ public class FlowLayout extends ViewGroup {
             canvas.drawLine(x, y, x + lp.horizontalSpacing, y, paint);
             canvas.drawLine(x + lp.horizontalSpacing, y - 4.0f, x + lp.horizontalSpacing, y + 4.0f, paint);
         }
-        if (lp.breakLine) {
-            float x = child.getRight();
+
+        if (lp.newLine) {
+            float x = child.getLeft();
             float y = child.getTop() + child.getHeight() / 2.0f;
             canvas.drawLine(x, y, x, y + 6.0f, paint);
             canvas.drawLine(x, y + 6.0f, x + 6.0f, y + 6.0f, paint);
@@ -188,27 +219,49 @@ public class FlowLayout extends ViewGroup {
     }
 
     public static class LayoutParams extends ViewGroup.LayoutParams {
-        int x;
-        int y;
+        private static int NO_SPACING = -1;
 
-        public int horizontalSpacing;
-        public boolean breakLine;
+        private int x;
+        private int y;
+        private int horizontalSpacing = NO_SPACING;
+        private int verticalSpacing = NO_SPACING;
+        private boolean newLine = false;
 
         public LayoutParams(Context context, AttributeSet attributeSet) {
             super(context, attributeSet);
-
-            TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout_LayoutParams);
-			try {
-				horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_horizontalSpacing, -1);
-				breakLine = a.getBoolean(R.styleable.FlowLayout_LayoutParams_layout_breakLine, false);
-			} finally {
-				a.recycle();
-			}
-
+            this.readStyleParameters(context, attributeSet);
         }
 
         public LayoutParams(int width, int height) {
             super(width, height);
+        }
+
+        public LayoutParams(ViewGroup.LayoutParams layoutParams) {
+            super(layoutParams);
+        }
+
+        public boolean horizontalSpacingSpecified() {
+            return horizontalSpacing != NO_SPACING;
+        }
+
+        public boolean verticalSpacingSpecified() {
+            return verticalSpacing != NO_SPACING;
+        }
+
+        public void setPosition(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        private void readStyleParameters(Context context, AttributeSet attributeSet) {
+            TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout_LayoutParams);
+            try {
+                horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_horizontalSpacing, NO_SPACING);
+                verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_verticalSpacing, NO_SPACING);
+                newLine = a.getBoolean(R.styleable.FlowLayout_LayoutParams_layout_newLine, false);
+            } finally {
+                a.recycle();
+            }
         }
     }
 }
