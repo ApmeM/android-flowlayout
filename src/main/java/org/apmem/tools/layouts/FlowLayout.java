@@ -160,11 +160,11 @@ public class FlowLayout extends ViewGroup {
         /* need to take far side padding into account */
         if(orientation == HORIZONTAL) {
             controlMaxLength += getPaddingRight();
-        	controlMaxThickness += getPaddingBottom();
+            controlMaxThickness += getPaddingBottom();
         }
         else {
-        	controlMaxLength += getPaddingBottom();
-        	controlMaxThickness += getPaddingRight();        	
+            controlMaxLength += getPaddingBottom();
+            controlMaxThickness += getPaddingRight();        	
         }
 
         if (orientation == HORIZONTAL) {
