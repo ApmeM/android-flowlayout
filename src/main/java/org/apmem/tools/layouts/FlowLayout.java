@@ -9,30 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import org.apmem.tools.R;
 
-/**
- * User: Romain Guy
- * <p/>
- * Using example:
- * <?xml version="4.0" encoding="utf-8"?>
- * <com.example.android.layout.FlowLayout
- * xmlns:f="http://schemas.android.com/apk/res/org.apmem.android"
- * xmlns:android="http://schemas.android.com/apk/res/android"
- * f:horizontalSpacing="6dip"
- * f:verticalSpacing="12dip"
- * android:layout_width="wrap_content"
- * android:layout_height="wrap_content"
- * android:paddingLeft="6dip"
- * android:paddingTop="6dip"
- * android:paddingRight="12dip">
- * <Button
- * android:layout_width="wrap_content"
- * android:layout_height="wrap_content"
- * f:layout_horizontalSpacing="32dip"
- * f:layout_breakLine="true"
- * android:text="Cancel" />
- * <p/>
- * </com.example.android.layout.FlowLayout>
- */
 public class FlowLayout extends ViewGroup {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
@@ -158,13 +134,12 @@ public class FlowLayout extends ViewGroup {
         }
 
         /* need to take far side padding into account */
-        if(orientation == HORIZONTAL) {
+        if (orientation == HORIZONTAL) {
             controlMaxLength += getPaddingRight();
             controlMaxThickness += getPaddingBottom();
-        }
-        else {
+        } else {
             controlMaxLength += getPaddingBottom();
-            controlMaxThickness += getPaddingRight();        	
+            controlMaxThickness += getPaddingRight();
         }
 
         if (orientation == HORIZONTAL) {
