@@ -133,13 +133,13 @@ public class FlowLayout extends ViewGroup {
             controlMaxThickness = prevLinePosition + lineThickness;
         }
 
-        /* need to take far side padding into account */
+        /* need to take paddings into account */
         if (orientation == HORIZONTAL) {
-            controlMaxLength += getPaddingRight();
-            controlMaxThickness += getPaddingBottom();
+            controlMaxLength += getPaddingLeft() + getPaddingRight();
+            controlMaxThickness += getPaddingBottom() + getPaddingTop();
         } else {
-            controlMaxLength += getPaddingBottom();
-            controlMaxThickness += getPaddingRight();
+            controlMaxLength += getPaddingBottom() + getPaddingTop();
+            controlMaxThickness += getPaddingLeft() + getPaddingRight();
         }
 
         if (orientation == HORIZONTAL) {
