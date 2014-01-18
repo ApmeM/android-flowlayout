@@ -12,7 +12,6 @@ import org.apmem.tools.R;
 public class FlowLayout extends ViewGroup {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
-
     private int horizontalSpacing = 0;
     private int verticalSpacing = 0;
     private int orientation = 0;
@@ -72,12 +71,12 @@ public class FlowLayout extends ViewGroup {
                 continue;
             }
 
-            child.measure(
-                    MeasureSpec.makeMeasureSpec(sizeWidth, modeWidth == MeasureSpec.EXACTLY ? MeasureSpec.AT_MOST : modeWidth),
-                    MeasureSpec.makeMeasureSpec(sizeHeight, modeHeight == MeasureSpec.EXACTLY ? MeasureSpec.AT_MOST : modeHeight)
-            );
-
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
+
+            child.measure(
+                    createChildMeasureSpec(sizeWidth, modeWidth, lp.width),
+                    createChildMeasureSpec(sizeHeight, modeHeight, lp.height)
+            );
 
             int hSpacing = this.getHorizontalSpacing(lp);
             int vSpacing = this.getVerticalSpacing(lp);
@@ -146,6 +145,25 @@ public class FlowLayout extends ViewGroup {
             this.setMeasuredDimension(resolveSize(controlMaxLength, widthMeasureSpec), resolveSize(controlMaxThickness, heightMeasureSpec));
         } else {
             this.setMeasuredDimension(resolveSize(controlMaxThickness, widthMeasureSpec), resolveSize(controlMaxLength, heightMeasureSpec));
+        }
+    }
+
+    private int createChildMeasureSpec(int sizeParent, int modeSize, int lpSize) {
+        switch (lpSize) {
+            case LayoutParams.WRAP_CONTENT: {
+                return MeasureSpec.makeMeasureSpec(sizeParent, MeasureSpec.AT_MOST);
+            }
+            case LayoutParams.MATCH_PARENT: {
+                return MeasureSpec.makeMeasureSpec(sizeParent, MeasureSpec.EXACTLY);
+            }
+            default:
+            {
+                if (lpSize < sizeParent) {
+                    return MeasureSpec.makeMeasureSpec(lpSize, MeasureSpec.EXACTLY);
+                } else {
+                    return MeasureSpec.makeMeasureSpec(sizeParent, modeSize == MeasureSpec.EXACTLY ? MeasureSpec.AT_MOST : modeSize);
+                }
+            }
         }
     }
 
@@ -280,7 +298,6 @@ public class FlowLayout extends ViewGroup {
 
     public static class LayoutParams extends ViewGroup.LayoutParams {
         private static int NO_SPACING = -1;
-
         private int x;
         private int y;
         private int horizontalSpacing = NO_SPACING;
