@@ -74,8 +74,8 @@ public class FlowLayout extends ViewGroup {
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
             child.measure(
-                    createChildMeasureSpec(sizeWidth, modeWidth, lp.width),
-                    createChildMeasureSpec(sizeHeight, modeHeight, lp.height)
+                    getChildMeasureSpec(widthMeasureSpec, this.getPaddingLeft() + this.getPaddingRight(), lp.width),
+                    getChildMeasureSpec(heightMeasureSpec, this.getPaddingTop() + this.getPaddingBottom(), lp.height)
             );
 
             int hSpacing = this.getHorizontalSpacing(lp);
@@ -145,25 +145,6 @@ public class FlowLayout extends ViewGroup {
             this.setMeasuredDimension(resolveSize(controlMaxLength, widthMeasureSpec), resolveSize(controlMaxThickness, heightMeasureSpec));
         } else {
             this.setMeasuredDimension(resolveSize(controlMaxThickness, widthMeasureSpec), resolveSize(controlMaxLength, heightMeasureSpec));
-        }
-    }
-
-    private int createChildMeasureSpec(int sizeParent, int modeSize, int lpSize) {
-        switch (lpSize) {
-            case LayoutParams.WRAP_CONTENT: {
-                return MeasureSpec.makeMeasureSpec(sizeParent, MeasureSpec.AT_MOST);
-            }
-            case LayoutParams.MATCH_PARENT: {
-                return MeasureSpec.makeMeasureSpec(sizeParent, MeasureSpec.EXACTLY);
-            }
-            default:
-            {
-                if (lpSize < sizeParent) {
-                    return MeasureSpec.makeMeasureSpec(lpSize, MeasureSpec.EXACTLY);
-                } else {
-                    return MeasureSpec.makeMeasureSpec(sizeParent, modeSize == MeasureSpec.EXACTLY ? MeasureSpec.AT_MOST : modeSize);
-                }
-            }
         }
     }
 
