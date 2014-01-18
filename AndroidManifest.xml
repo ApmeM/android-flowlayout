@@ -3,7 +3,7 @@
           package="org.apmem.tools" android:versionCode="1" android:versionName="1.0-SNAPSHOT">
     <uses-sdk android:minSdkVersion="15"/>
     <application android:label="@string/app_name" android:icon="@drawable/ic_launcher">
-        <activity android:name="MyActivity"
+        <activity android:name="org.apmem.tools.layouts.MyActivity"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
