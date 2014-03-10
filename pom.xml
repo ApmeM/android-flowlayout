@@ -21,6 +21,7 @@
 
   <modules>
     <module>libraries/layouts</module>
+    <module>app</module>
   </modules>
 
   <scm>
