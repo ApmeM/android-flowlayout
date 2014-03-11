@@ -3,17 +3,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.apmem.tools</groupId>
-    <artifactId>java-flowlayout</artifactId>
-    <version>1.0</version>
-    <relativePath>../pom.xml</relativePath>
-  </parent>
+    <parent>
+        <groupId>org.apmem.tools</groupId>
+        <artifactId>java-flowlayout</artifactId>
+        <version>1.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-  <artifactId>app</artifactId>
-  <version>1.0</version>
-  <packaging>apk</packaging>
-  <name>FlowLayout (Example)</name>
+    <artifactId>app</artifactId>
+    <version>1.0</version>
+    <packaging>apk</packaging>
+    <name>FlowLayout (Example)</name>
 
     <dependencies>
         <dependency>
