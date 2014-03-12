@@ -11,7 +11,7 @@
 
     <groupId>org.apmem.tools</groupId>
     <artifactId>java-flowlayout</artifactId>
-    <version>1.0</version>
+    <version>1.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
