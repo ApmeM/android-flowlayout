@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.apmem.tools" android:versionCode="1" android:versionName="1.0">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="org.apmem.tools.layouts" android:versionCode="1" android:versionName="1.0">
     <uses-sdk android:minSdkVersion="4" android:targetSdkVersion="16"/>
 </manifest>

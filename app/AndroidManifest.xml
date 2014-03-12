@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="org.apmem.tools" android:versionCode="1" android:versionName="1.0-SNAPSHOT">
+          package="org.apmem.tools.example" android:versionCode="1" android:versionName="1.0-SNAPSHOT">
     <uses-sdk android:minSdkVersion="15"/>
     <application android:label="@string/app_name" android:icon="@drawable/ic_launcher">
-        <activity android:name="org.apmem.tools.layouts.MyActivity"
+        <activity android:name="org.apmem.tools.example.MyActivity"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>

@@ -1,8 +1,7 @@
-package org.apmem.tools.layouts;
+package org.apmem.tools.example;
 
 import android.app.Activity;
 import android.os.Bundle;
-import org.apmem.tools.R;
 
 public class MyActivity extends Activity {
     /**

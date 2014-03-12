@@ -5,7 +5,7 @@
               android:layout_height="fill_parent"
         >
     <org.apmem.tools.layouts.FlowLayout
-            xmlns:f="http://schemas.android.com/apk/res/org.apmem.tools"
+            xmlns:f="http://schemas.android.com/apk/res/org.apmem.tools.layouts"
             xmlns:android="http://schemas.android.com/apk/res/android"
             f:orientation="horizontal"
             f:horizontalSpacing="12dip"
