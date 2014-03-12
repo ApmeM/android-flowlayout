@@ -21,7 +21,7 @@
         <dependency>
             <groupId>org.apmem.tools</groupId>
             <artifactId>layouts</artifactId>
-            <scope>provided</scope>
+            <type>apklib</type>
             <version>1.0</version>
         </dependency>
         <dependency>
@@ -52,6 +52,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
+                <version>1.8</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
