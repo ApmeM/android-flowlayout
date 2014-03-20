@@ -16,7 +16,8 @@
             android:paddingLeft="6dip"
             android:paddingTop="6dip"
             android:paddingRight="12dip"
-            android:paddingBottom="12dip">
+            android:paddingBottom="12dip"
+            android:id="@+id/flowLayout">
         <Button
                 android:layout_width="120dp"
                 android:layout_height="120dp"
