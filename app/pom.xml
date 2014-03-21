@@ -47,6 +47,10 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <androidManifestFile>${project.basedir}/src/main/AndroidManifest.xml</androidManifestFile>
+                    <resourceDirectory>${project.basedir}/src/main/res</resourceDirectory>
+                 </configuration>
             </plugin>
         </plugins>
     </build>
