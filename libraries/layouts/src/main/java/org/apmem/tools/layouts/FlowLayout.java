@@ -5,11 +5,8 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-
-import com.quesity.R;
 
 public class FlowLayout extends ViewGroup {
     public static final int HORIZONTAL = 0;
