@@ -1,10 +1,14 @@
 <resources>
-    <declare-styleable name="FlowLayout">
+	<declare-styleable name="FlowLayout">
         <attr name="horizontalSpacing" format="dimension"/>
         <attr name="verticalSpacing" format="dimension"/>
         <attr name="orientation" format="enum">
             <enum name="horizontal" value="0"/>
             <enum name="vertical" value="1"/>
+        </attr>
+        <attr name="direction" format="enum">
+            <enum name="left" value="0"/>
+            <enum name="right" value="1"/>
         </attr>
         <attr name="debugDraw" format="boolean" />
     </declare-styleable>
