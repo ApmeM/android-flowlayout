@@ -11,6 +11,9 @@
             f:horizontalSpacing="12dip"
             f:verticalSpacing="6dip"
             f:debugDraw="true"
+            f:fillLines="all"
+            f:weightDefault="1.0"
+            android:gravity="center_vertical|fill_horizontal"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:paddingLeft="6dip"
@@ -18,11 +21,13 @@
             android:paddingRight="12dip"
             android:paddingBottom="12dip"
             android:id="@+id/flowLayout">
+
         <Button
                 android:layout_width="120dp"
                 android:layout_height="120dp"
                 android:text="@string/button_test"/>
         <Button
+                android:layout_gravity="bottom|fill_horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/button_test"/>
@@ -61,6 +66,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/button_test"/>
         <Button
+                f:layout_weight="0"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/button_test"/>
@@ -110,9 +116,9 @@
                 android:layout_height="wrap_content"
                 android:text="@string/button_test"/>
         <Button
+                f:layout_weight="5.0"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/button_test"/>
     </org.apmem.tools.layouts.FlowLayout>
 </LinearLayout>
-
