@@ -22,7 +22,7 @@ Debug is switched off:
 
 ## Installation and usage
 
-Take from maven repository (http://search.maven.org/#search%7Cga%7C1%7Corg.apmem.tools) or add FlowLayout and other components to your solution
+Take from maven repository (<http://search.maven.org/#search%7Cga%7C1%7Corg.apmem.tools>, <http://mvnrepository.com/search.html?query=org.apmem.tools>) or add FlowLayout and other components to your solution
 
 Add the following xml code into your layout/something.xml:
 
