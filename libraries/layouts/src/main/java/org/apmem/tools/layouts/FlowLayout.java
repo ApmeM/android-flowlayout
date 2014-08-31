@@ -28,6 +28,7 @@ public class FlowLayout extends ViewGroup {
     private float mWeightSum;
     private float mWeightDefault;
     private int mGravity = Gravity.LEFT | Gravity.TOP;
+    private boolean isCenterJustified = false;
     private FillLines mFillLines = FillLines.NONE;
 
     private final List<View> mCurrentRow = new ArrayList<View>();
@@ -260,7 +261,9 @@ public class FlowLayout extends ViewGroup {
                     } else {
                         offsetX += (extraSecondary * moveSecondary) / 2;
                     }
-                    plp.setPosition(plp.x + accOffsetX + offsetX, plp.y + accOffsetY + offsetY);
+                    if (!isCenterJustified){
+                        plp.setPosition(plp.x + accOffsetX + offsetX, plp.y + accOffsetY + offsetY);
+                    }
                     if (scalePrimary) {
                         if (orientation == HORIZONTAL) {
                             fillX += extraPrimary;
@@ -285,6 +288,12 @@ public class FlowLayout extends ViewGroup {
                         accOffsetX += extraPrimary;
                     } else {
                         accOffsetY += extraPrimary;
+                    }
+                }
+                if(isCenterJustified) {
+                    for (View prev : row) {
+                        LayoutParams plp = (LayoutParams) prev.getLayoutParams();
+                        plp.setPosition(plp.x + accOffsetX / 2, plp.y + accOffsetY / 2);
                     }
                 }
             }
@@ -358,6 +367,7 @@ public class FlowLayout extends ViewGroup {
             debugDraw = a.getBoolean(R.styleable.FlowLayout_debugDraw, false);
             mWeightSum = a.getFloat(R.styleable.FlowLayout_weightSum, 0.0f);
             mWeightDefault = a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f);
+            isCenterJustified = a.getBoolean(R.styleable.FlowLayout_isCenterJustified, false);
             int gravityIndex = a.getInt(R.styleable.FlowLayout_android_gravity, -1);
             if (gravityIndex >= 0) {
                 setGravity(gravityIndex);
@@ -449,6 +459,14 @@ public class FlowLayout extends ViewGroup {
         requestLayout();
     }
 
+    public boolean isCenterJustified() {
+        return isCenterJustified;
+    }
+
+    public void setIsCenterJustified(boolean centerJustified) {
+        isCenterJustified = centerJustified;
+    }
+
     public int getGravity() {
         return mGravity;
     }
@@ -510,6 +528,7 @@ public class FlowLayout extends ViewGroup {
         public boolean newLine = false;
         public int gravity = Gravity.NO_GRAVITY;
         public float weight = -1.0f;
+        public boolean isCenterJustified;
 
         public LayoutParams(Context context, AttributeSet attributeSet) {
             super(context, attributeSet);
@@ -545,6 +564,7 @@ public class FlowLayout extends ViewGroup {
                 newLine = a.getBoolean(R.styleable.FlowLayout_LayoutParams_layout_newLine, false);
                 gravity = a.getInt(R.styleable.FlowLayout_LayoutParams_android_layout_gravity, gravity);
                 weight = a.getFloat(R.styleable.FlowLayout_LayoutParams_layout_weight, weight);
+                isCenterJustified = a.getBoolean(R.styleable.FlowLayout_LayoutParams_layout_isCenterJustified, false);
             } finally {
                 a.recycle();
             }
