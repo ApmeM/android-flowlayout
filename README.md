@@ -12,6 +12,7 @@ Horizontal:
 ![](https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_album.png)
 
 Horizontal rtl:
+
 ![](https://raw.githubusercontent.com/naveedmurtuza/android-flowlayout/master/img/portrait_rtl.png)
 ![](https://raw.githubusercontent.com/naveedmurtuza/android-flowlayout/master/img/landscape_rtl.png)
 
@@ -47,6 +48,10 @@ To change default direction use the following code
 
 	f:orientation="vertical"
 
+To change flow direction use the following code
+
+	f:flowDirection="rtl"
+	
 To override default spacing use the following LayoutParameter in the child View element:
 
 	f:layout_horizontalSpacing="32dip"
