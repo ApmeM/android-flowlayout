@@ -6,6 +6,10 @@
             <enum name="horizontal" value="0"/>
             <enum name="vertical" value="1"/>
         </attr>
+        <attr name="flowDirection" format="enum">
+            <enum name="rtl" value="1"/>
+            <enum name="ltr" value="0"/>
+        </attr>
         <attr name="debugDraw" format="boolean" />
     </declare-styleable>
     <declare-styleable name="FlowLayout_LayoutParams">

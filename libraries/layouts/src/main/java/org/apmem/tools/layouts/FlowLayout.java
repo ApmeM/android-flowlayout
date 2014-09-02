@@ -11,9 +11,12 @@ import android.view.ViewGroup;
 public class FlowLayout extends ViewGroup {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
+    public static final int LTR = 0;
+    public static final int RTL = 1;
     private int horizontalSpacing = 0;
     private int verticalSpacing = 0;
     private int orientation = 0;
+    private int flowDirection = 0;
     private boolean debugDraw = false;
 
     public FlowLayout(Context context) {
@@ -103,7 +106,8 @@ public class FlowLayout extends ViewGroup {
             lineLength = lineLengthWithSpacing + childLength;
             lineLengthWithSpacing = lineLength + spacingLength;
 
-            boolean newLine = lp.newLine || (mode != MeasureSpec.UNSPECIFIED && lineLength > size);
+            boolean newLineCondition  = flowDirection == LTR ? lineLength > size: ((sizeWidth - lineLength) < 0);
+            boolean newLine = lp.newLine || (mode != MeasureSpec.UNSPECIFIED && newLineCondition);
             if (newLine) {
                 prevLinePosition = prevLinePosition + lineThicknessWithSpacing;
 
@@ -120,6 +124,10 @@ public class FlowLayout extends ViewGroup {
             int posY;
             if (orientation == HORIZONTAL) {
                 posX = getPaddingLeft() + lineLength - childLength;
+                if(flowDirection == RTL)
+                {
+                    posX = sizeWidth - posX - childLength;
+                }
                 posY = getPaddingTop() + prevLinePosition;
             } else {
                 posX = getPaddingLeft() + prevLinePosition;
@@ -210,6 +218,7 @@ public class FlowLayout extends ViewGroup {
             horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0);
             verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
             orientation = a.getInteger(R.styleable.FlowLayout_orientation, HORIZONTAL);
+            flowDirection = a.getInteger(R.styleable.FlowLayout_flowDirection,LTR);
             debugDraw = a.getBoolean(R.styleable.FlowLayout_debugDraw, false);
         } finally {
             a.recycle();

@@ -11,6 +11,7 @@
             f:horizontalSpacing="12dip"
             f:verticalSpacing="6dip"
             f:debugDraw="true"
+            f:flowDirection="rtl"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:paddingLeft="6dip"
