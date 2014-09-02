@@ -11,6 +11,10 @@ Horizontal:
 ![](https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_portrait.png)
 ![](https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_album.png)
 
+Horizontal rtl:
+![](https://raw.githubusercontent.com/naveedmurtuza/android-flowlayout/master/img/portrait_rtl.png)
+![](https://raw.githubusercontent.com/naveedmurtuza/android-flowlayout/master/img/landscape_rtl.png)
+
 Vertical:
 
 ![](https://github.com/ApmeM/android-flowlayout/raw/master/img/vertical_portrait.png)
