@@ -24,6 +24,10 @@ Debug is switched off:
 
 Take from maven repository (<http://search.maven.org/#search%7Cga%7C1%7Corg.apmem.tools>, <http://mvnrepository.com/search.html?query=org.apmem.tools>) or add FlowLayout and other components to your solution
 
+Add it as dependency in Gradle as:
+
+	compile 'org.apmem.tools:layouts:1.0@aar'
+
 Add the following xml code into your layout/something.xml:
 
 	<org.apmem.tools.layouts.FlowLayout
