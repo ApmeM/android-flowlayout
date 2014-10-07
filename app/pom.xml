@@ -5,12 +5,12 @@
     <parent>
         <groupId>org.apmem.tools</groupId>
         <artifactId>java-flowlayout</artifactId>
-        <version>1.1</version>
+        <version>1.2-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>app</artifactId>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
 
     <packaging>apk</packaging>
 
@@ -21,7 +21,7 @@
             <groupId>org.apmem.tools</groupId>
             <artifactId>layouts</artifactId>
             <type>aar</type>
-            <version>1.1</version>
+            <version>1.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.google.android</groupId>
