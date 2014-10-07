@@ -1,17 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
         <groupId>org.apmem.tools</groupId>
         <artifactId>java-flowlayout</artifactId>
-        <version>1.1-SNAPSHOT</version>
+        <version>1.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>app</artifactId>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1</version>
 
     <packaging>apk</packaging>
 
@@ -22,7 +21,7 @@
             <groupId>org.apmem.tools</groupId>
             <artifactId>layouts</artifactId>
             <type>aar</type>
-            <version>1.1-SNAPSHOT</version>
+            <version>1.1</version>
         </dependency>
         <dependency>
             <groupId>com.google.android</groupId>
