@@ -1,0 +1,10 @@
+apply plugin: 'android'
+
+dependencies {
+    compile project(':libraries:layouts')
+}
+
+android {
+  compileSdkVersion 10
+  buildToolsVersion '19.1.0'
+}
