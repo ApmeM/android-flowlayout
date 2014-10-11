@@ -1,3 +1,5 @@
+apply plugin: 'android-reporting'
+
 buildscript {
   repositories {
     mavenCentral()
@@ -9,9 +11,17 @@ buildscript {
 }
 
 allprojects {
+  version = VERSION_NAME
+  group = GROUP
+
   repositories {
     mavenCentral()
   }
+}
+
+def isReleaseBuild() {
+    println version
+    return version.contains("SNAPSHOT") == false
 }
 
 task wrapper(type: Wrapper) {
