@@ -1,0 +1,29 @@
+apply plugin: 'android-reporting'
+
+buildscript {
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath 'com.android.tools.build:gradle:0.12.+'
+  }
+}
+
+allprojects {
+  version = VERSION_NAME
+  group = GROUP
+
+  repositories {
+    mavenCentral()
+  }
+}
+
+def isReleaseBuild() {
+    println version
+    return version.contains("SNAPSHOT") == false
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '1.10'
+}
