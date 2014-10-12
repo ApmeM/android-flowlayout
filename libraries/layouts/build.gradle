@@ -1,5 +1,8 @@
 apply plugin: 'com.android.library'
 
+version = VERSION_NAME
+group = GROUP
+
 android {
   compileSdkVersion 10
   buildToolsVersion '19.1.0'
