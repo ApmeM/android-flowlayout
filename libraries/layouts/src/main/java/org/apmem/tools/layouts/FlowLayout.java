@@ -11,8 +11,11 @@ import android.view.ViewGroup;
 public class FlowLayout extends ViewGroup {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
+    public static final int RIGHT = 1;
+    public static final int LEFT = 0; 
     private int horizontalSpacing = 0;
     private int verticalSpacing = 0;
+    private int direction = LEFT;
     private int orientation = 0;
     private boolean debugDraw = false;
 
@@ -119,7 +122,12 @@ public class FlowLayout extends ViewGroup {
             int posX;
             int posY;
             if (orientation == HORIZONTAL) {
-                posX = getPaddingLeft() + lineLength - childLength;
+            	if ( direction == LEFT)
+            		posX = getPaddingLeft() + lineLength - childLength;
+            	else {
+            		posX = getWidth() - getPaddingRight() - lineLength;
+            		
+            	}
                 posY = getPaddingTop() + prevLinePosition;
             } else {
                 posX = getPaddingLeft() + prevLinePosition;
@@ -209,6 +217,7 @@ public class FlowLayout extends ViewGroup {
         try {
             horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0);
             verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
+            direction = a.getInteger(R.styleable.FlowLayout_direction, LEFT);
             orientation = a.getInteger(R.styleable.FlowLayout_orientation, HORIZONTAL);
             debugDraw = a.getBoolean(R.styleable.FlowLayout_debugDraw, false);
         } finally {
