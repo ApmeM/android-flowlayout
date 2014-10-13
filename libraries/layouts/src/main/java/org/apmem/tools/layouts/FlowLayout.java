@@ -207,10 +207,10 @@ public class FlowLayout extends ViewGroup {
     private void readStyleParameters(Context context, AttributeSet attributeSet) {
         TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
         try {
-            horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0);
-            verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
-            orientation = a.getInteger(R.styleable.FlowLayout_orientation, HORIZONTAL);
-            debugDraw = a.getBoolean(R.styleable.FlowLayout_debugDraw, false);
+            this.horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0);
+            this.verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
+            this.orientation = a.getInteger(R.styleable.FlowLayout_orientation, HORIZONTAL);
+            this.debugDraw = a.getBoolean(R.styleable.FlowLayout_debugDraw, false);
         } finally {
             a.recycle();
         }
@@ -276,13 +276,49 @@ public class FlowLayout extends ViewGroup {
         return paint;
     }
 
+    public int getHorizontalSpacing() {
+        return this.horizontalSpacing;
+    }
+
+    public void setHorizontalSpacing(int horizontalSpacing) {
+        this.horizontalSpacing = horizontalSpacing;
+    }
+
+    public int getVerticalSpacing() {
+        return this.verticalSpacing;
+    }
+
+    public void setVerticalSpacing(int verticalSpacing) {
+        this.verticalSpacing = verticalSpacing;
+    }
+
+    public int getOrientation() {
+        return this.orientation;
+    }
+
+    public void setOrientation(int orientation) {
+        this.orientation = orientation;
+    }
+
+    public boolean isDebugDraw() {
+        return this.debugDraw;
+    }
+
+    public void setDebugDraw(boolean debugDraw) {
+        this.debugDraw = debugDraw;
+    }
+
     public static class LayoutParams extends ViewGroup.LayoutParams {
-        private static int NO_SPACING = -1;
-        private int x;
-        private int y;
-        private int horizontalSpacing = NO_SPACING;
-        private int verticalSpacing = NO_SPACING;
-        private boolean newLine = false;
+        private static final int NO_SPACING = -1;
+        @android.view.ViewDebug.ExportedProperty(category = "layout")
+        public int x;
+        @android.view.ViewDebug.ExportedProperty(category = "layout")
+        public int y;
+        @android.view.ViewDebug.ExportedProperty(category = "layout", mapping = {@android.view.ViewDebug.IntToString(from = NO_SPACING, to = "NO_SPACING")})
+        public int horizontalSpacing = NO_SPACING;
+        @android.view.ViewDebug.ExportedProperty(category = "layout", mapping = {@android.view.ViewDebug.IntToString(from = NO_SPACING, to = "NO_SPACING")})
+        public int verticalSpacing = NO_SPACING;
+        public boolean newLine = false;
 
         public LayoutParams(Context context, AttributeSet attributeSet) {
             super(context, attributeSet);
@@ -298,11 +334,11 @@ public class FlowLayout extends ViewGroup {
         }
 
         public boolean horizontalSpacingSpecified() {
-            return horizontalSpacing != NO_SPACING;
+            return this.horizontalSpacing != NO_SPACING;
         }
 
         public boolean verticalSpacingSpecified() {
-            return verticalSpacing != NO_SPACING;
+            return this.verticalSpacing != NO_SPACING;
         }
 
         public void setPosition(int x, int y) {
@@ -313,9 +349,9 @@ public class FlowLayout extends ViewGroup {
         private void readStyleParameters(Context context, AttributeSet attributeSet) {
             TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout_LayoutParams);
             try {
-                horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_horizontalSpacing, NO_SPACING);
-                verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_verticalSpacing, NO_SPACING);
-                newLine = a.getBoolean(R.styleable.FlowLayout_LayoutParams_layout_newLine, false);
+                this.horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_horizontalSpacing, NO_SPACING);
+                this.verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_verticalSpacing, NO_SPACING);
+                this.newLine = a.getBoolean(R.styleable.FlowLayout_LayoutParams_layout_newLine, false);
             } finally {
                 a.recycle();
             }

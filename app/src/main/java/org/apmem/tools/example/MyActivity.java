@@ -17,6 +17,8 @@ public class MyActivity extends Activity {
 
         FlowLayout layout = (FlowLayout)this.findViewById(R.id.flowLayout);
 
+        layout.setOrientation(FlowLayout.VERTICAL);
+
         TextView textView;
         textView = new TextView(this);
         textView.setLayoutParams(new FlowLayout.LayoutParams(100, 100));
