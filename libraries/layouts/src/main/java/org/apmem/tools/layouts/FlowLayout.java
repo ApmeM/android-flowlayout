@@ -5,16 +5,29 @@ import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FlowLayout extends ViewGroup {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
+
+    private static final int FILL_LINES_NONE = 0;
+    private static final int FILL_LINES_EXCEPT_LAST = 1;
+    private static final int FILL_LINES_ALL = 2;
+
     private int horizontalSpacing = 0;
     private int verticalSpacing = 0;
     private int orientation = 0;
     private boolean debugDraw = false;
+    private float weightSum;
+    private float weightDefault;
+    private int gravity = Gravity.LEFT | Gravity.TOP;
+    private FillLines fillLines = FillLines.NONE;
 
     public FlowLayout(Context context) {
         super(context);
@@ -33,6 +46,8 @@ public class FlowLayout extends ViewGroup {
 
         this.readStyleParameters(context, attributeSet);
     }
+
+
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
@@ -59,10 +74,12 @@ public class FlowLayout extends ViewGroup {
         int lineLength;
 
         int prevLinePosition = 0;
+        int prevLineLength = 0;
 
         int controlMaxLength = 0;
         int controlMaxThickness = 0;
 
+        List<View> row = new ArrayList<View>();
         final int count = getChildCount();
         for (int i = 0; i < count; i++) {
             final View child = getChildAt(i);
@@ -105,6 +122,10 @@ public class FlowLayout extends ViewGroup {
 
             boolean newLine = lp.newLine || (mode != MeasureSpec.UNSPECIFIED && lineLength > size);
             if (newLine) {
+                if (fillLines != FillLines.NONE) {
+                    fillLine(row, size, prevLineLength, lineThickness);
+                }
+
                 prevLinePosition = prevLinePosition + lineThicknessWithSpacing;
 
                 lineThickness = childThickness;
@@ -113,6 +134,7 @@ public class FlowLayout extends ViewGroup {
                 lineLengthWithSpacing = lineLength + spacingLength;
             }
 
+            prevLineLength = lineLength;
             lineThicknessWithSpacing = Math.max(lineThicknessWithSpacing, childThickness + spacingThickness);
             lineThickness = Math.max(lineThickness, childThickness);
 
@@ -129,6 +151,11 @@ public class FlowLayout extends ViewGroup {
 
             controlMaxLength = Math.max(controlMaxLength, lineLength);
             controlMaxThickness = prevLinePosition + lineThickness;
+
+            row.add(child);
+        }
+        if (fillLines == FillLines.ALL) {
+            fillLine(row, size, prevLineLength, lineThickness);
         }
 
         /* need to take paddings into account */
@@ -145,26 +172,6 @@ public class FlowLayout extends ViewGroup {
         } else {
             this.setMeasuredDimension(resolveSize(controlMaxThickness, widthMeasureSpec), resolveSize(controlMaxLength, heightMeasureSpec));
         }
-    }
-
-    private int getVerticalSpacing(LayoutParams lp) {
-        int vSpacing;
-        if (lp.verticalSpacingSpecified()) {
-            vSpacing = lp.verticalSpacing;
-        } else {
-            vSpacing = this.verticalSpacing;
-        }
-        return vSpacing;
-    }
-
-    private int getHorizontalSpacing(LayoutParams lp) {
-        int hSpacing;
-        if (lp.horizontalSpacingSpecified()) {
-            hSpacing = lp.horizontalSpacing;
-        } else {
-            hSpacing = this.horizontalSpacing;
-        }
-        return hSpacing;
     }
 
     @Override
@@ -204,6 +211,144 @@ public class FlowLayout extends ViewGroup {
         return new LayoutParams(p);
     }
 
+
+
+    private void fillLine(List<View> row, int size, int prevLineLength, int prevLineThickness) {
+        int lineCount = row.size();
+        float totalWeight = 0;
+        if (lineCount > 0) {
+            if (weightSum > 0) {
+                totalWeight = weightSum;
+            } else {
+                for (View prev : row) {
+                    LayoutParams plp = (LayoutParams) prev.getLayoutParams();
+                    float weight = plp.weight < 0.0f ? weightDefault : plp.weight;
+                    totalWeight += weight;
+                }
+            }
+            if (totalWeight > 0) {
+                int excess = size - prevLineLength;
+                int accOffsetX = 0, accOffsetY = 0;
+                for (View prev : row) {
+                    int offsetX = 0, offsetY = 0;
+                    LayoutParams plp = (LayoutParams) prev.getLayoutParams();
+
+                    float weight = plp.weight < 0.0f ? weightDefault : plp.weight;
+                    int extraPrimary = Math.round(excess * weight / totalWeight);
+                    totalWeight -= weight;
+                    excess -= extraPrimary;
+
+                    int gravity = plp.gravity == Gravity.NO_GRAVITY ? this.gravity : plp.gravity;
+                    boolean scalePrimary = false, scaleSecondary = false;
+                    int movePrimary = 0, moveSecondary = 0;
+                    if (orientation == HORIZONTAL) {
+                        if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) != Gravity.LEFT) {
+                            if ((gravity & (Gravity.FILL_HORIZONTAL ^ Gravity.RIGHT)) != 0) {
+                                scalePrimary = true;
+                            } else if ((gravity & (Gravity.RIGHT ^ Gravity.CENTER_HORIZONTAL)) != 0) {
+                                movePrimary = 2;
+                            } else if ((gravity & Gravity.CENTER_HORIZONTAL) != 0) {
+                                movePrimary = 1;
+                            }
+                        }
+                        if ((gravity & Gravity.VERTICAL_GRAVITY_MASK) != Gravity.TOP) {
+                            if ((gravity & (Gravity.FILL_VERTICAL ^ Gravity.BOTTOM)) != 0) {
+                                scaleSecondary = true;
+                            } else if ((gravity & (Gravity.BOTTOM ^ Gravity.CENTER_VERTICAL)) != 0) {
+                                moveSecondary = 2;
+                            } else if ((gravity & Gravity.CENTER_VERTICAL) != 0) {
+                                moveSecondary = 1;
+                            }
+                        }
+                    } else {
+                        if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) != Gravity.LEFT) {
+                            if ((gravity & (Gravity.FILL_HORIZONTAL ^ Gravity.RIGHT)) != 0) {
+                                scaleSecondary = true;
+                            } else if ((gravity & (Gravity.RIGHT ^ Gravity.CENTER_HORIZONTAL)) != 0) {
+                                moveSecondary = 2;
+                            } else if ((gravity & Gravity.CENTER_HORIZONTAL) != 0) {
+                                moveSecondary = 1;
+                            }
+                        }
+                        if ((gravity & Gravity.VERTICAL_GRAVITY_MASK) != Gravity.TOP) {
+                            if ((gravity & (Gravity.FILL_VERTICAL ^ Gravity.BOTTOM)) != 0) {
+                                scalePrimary = true;
+                            } else if ((gravity & (Gravity.BOTTOM ^ Gravity.CENTER_VERTICAL)) != 0) {
+                                movePrimary = 2;
+                            } else if ((gravity & Gravity.CENTER_VERTICAL) != 0) {
+                                movePrimary = 1;
+                            }
+                        }
+                    }
+                    int extraSecondary;
+                    if (orientation == HORIZONTAL) {
+                        extraSecondary = prevLineThickness - prev.getMeasuredHeight();
+                    } else {
+                        extraSecondary = prevLineThickness - prev.getMeasuredWidth();
+                    }
+                    int fillX = 0, fillY = 0;
+                    if (orientation == HORIZONTAL) {
+                        offsetX += (extraPrimary * movePrimary) / 2;
+                    } else {
+                        offsetY += (extraPrimary * movePrimary) / 2;
+                    }
+                    if (orientation == HORIZONTAL) {
+                        offsetY += (extraSecondary * moveSecondary) / 2;
+                    } else {
+                        offsetX += (extraSecondary * moveSecondary) / 2;
+                    }
+                    plp.setPosition(plp.x + accOffsetX + offsetX, plp.y + accOffsetY + offsetY);
+                    if (scalePrimary) {
+                        if (orientation == HORIZONTAL) {
+                            fillX += extraPrimary;
+                        } else {
+                            fillY += extraPrimary;
+                        }
+                    }
+                    if (scaleSecondary) {
+                        if (orientation == HORIZONTAL) {
+                            fillY += extraSecondary;
+                        } else {
+                            fillX += extraSecondary;
+                        }
+                    }
+                    if (fillX != 0 || fillY != 0) {
+                        prev.measure(
+                                MeasureSpec.makeMeasureSpec(prev.getMeasuredWidth() + fillX, MeasureSpec.EXACTLY),
+                                MeasureSpec.makeMeasureSpec(prev.getMeasuredHeight() + fillY, MeasureSpec.EXACTLY)
+                        );
+                    }
+                    if (orientation == HORIZONTAL) {
+                        accOffsetX += extraPrimary;
+                    } else {
+                        accOffsetY += extraPrimary;
+                    }
+                }
+            }
+            row.clear();
+        }
+    }
+
+    private int getVerticalSpacing(LayoutParams lp) {
+        int vSpacing;
+        if (lp.verticalSpacingSpecified()) {
+            vSpacing = lp.verticalSpacing;
+        } else {
+            vSpacing = this.verticalSpacing;
+        }
+        return vSpacing;
+    }
+
+    private int getHorizontalSpacing(LayoutParams lp) {
+        int hSpacing;
+        if (lp.horizontalSpacingSpecified()) {
+            hSpacing = lp.horizontalSpacing;
+        } else {
+            hSpacing = this.horizontalSpacing;
+        }
+        return hSpacing;
+    }
+
     private void readStyleParameters(Context context, AttributeSet attributeSet) {
         TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
         try {
@@ -211,6 +356,16 @@ public class FlowLayout extends ViewGroup {
             this.verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
             this.orientation = a.getInteger(R.styleable.FlowLayout_orientation, HORIZONTAL);
             this.debugDraw = a.getBoolean(R.styleable.FlowLayout_debugDraw, false);
+            weightSum = a.getFloat(R.styleable.FlowLayout_weightSum, 0.0f);
+            weightDefault = a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f);
+            int gravityIndex = a.getInt(R.styleable.FlowLayout_android_gravity, -1);
+            if (gravityIndex >= 0) {
+                setGravity(gravityIndex);
+            }
+            int fillLinesIndex = a.getInt(R.styleable.FlowLayout_fillLines, -1);
+            if (fillLinesIndex >= 0) {
+                setFillLines(FillLines.from(fillLinesIndex));
+            }
         } finally {
             a.recycle();
         }
@@ -276,12 +431,15 @@ public class FlowLayout extends ViewGroup {
         return paint;
     }
 
+
+
     public int getHorizontalSpacing() {
         return this.horizontalSpacing;
     }
-
+    
     public void setHorizontalSpacing(int horizontalSpacing) {
         this.horizontalSpacing = horizontalSpacing;
+        requestLayout();
     }
 
     public int getVerticalSpacing() {
@@ -290,6 +448,7 @@ public class FlowLayout extends ViewGroup {
 
     public void setVerticalSpacing(int verticalSpacing) {
         this.verticalSpacing = verticalSpacing;
+        requestLayout();
     }
 
     public int getOrientation() {
@@ -298,6 +457,7 @@ public class FlowLayout extends ViewGroup {
 
     public void setOrientation(int orientation) {
         this.orientation = orientation;
+        requestLayout();
     }
 
     public boolean isDebugDraw() {
@@ -306,6 +466,83 @@ public class FlowLayout extends ViewGroup {
 
     public void setDebugDraw(boolean debugDraw) {
         this.debugDraw = debugDraw;
+        requestLayout();
+    }
+
+    public float getWeightSum() {
+        return weightSum;
+    }
+
+    public void setWeightSum(float weightSum) {
+        this.weightSum = Math.max(0, weightSum);
+        requestLayout();
+    }
+
+    public float getWeightDefault() {
+        return weightDefault;
+    }
+
+    public void setWeightDefault(float weightDefault) {
+        this.weightDefault = Math.max(0, weightDefault);
+        requestLayout();
+    }
+
+    public int getGravity() {
+        return gravity;
+    }
+
+    public void setGravity(int gravity) {
+        if (this.gravity == gravity) {
+            return;
+        }
+
+        if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == 0) {
+            gravity |= Gravity.LEFT;
+        }
+
+        if ((gravity & Gravity.VERTICAL_GRAVITY_MASK) == 0) {
+            gravity |= Gravity.TOP;
+        }
+
+        this.gravity = gravity;
+        requestLayout();
+    }
+
+    public FillLines getFillLines() {
+        return fillLines;
+    }
+
+    public void setFillLines(FillLines fillLines) {
+        this.fillLines = fillLines != null ? fillLines : FillLines.NONE;
+        requestLayout();
+    }
+
+
+
+    public enum FillLines {
+        NONE(FILL_LINES_NONE),
+        EXCEPT_LAST(FILL_LINES_EXCEPT_LAST),
+        ALL(FILL_LINES_ALL);
+
+        private final int mIntValue;
+
+        FillLines(int intValue) {
+            mIntValue = intValue;
+        }
+
+        public static FillLines from(int intValue) {
+            if (intValue == EXCEPT_LAST.getIntValue()) {
+                return EXCEPT_LAST;
+            } else if (intValue == ALL.getIntValue()) {
+                return ALL;
+            } else {
+                return NONE;
+            }
+        }
+
+        public int getIntValue() {
+            return mIntValue;
+        }
     }
 
     public static class LayoutParams extends ViewGroup.LayoutParams {
@@ -318,6 +555,9 @@ public class FlowLayout extends ViewGroup {
         public int horizontalSpacing = NO_SPACING;
         @android.view.ViewDebug.ExportedProperty(category = "layout", mapping = {@android.view.ViewDebug.IntToString(from = NO_SPACING, to = "NO_SPACING")})
         public int verticalSpacing = NO_SPACING;
+
+        public int gravity = Gravity.NO_GRAVITY;
+        public float weight = -1.0f;
         public boolean newLine = false;
 
         public LayoutParams(Context context, AttributeSet attributeSet) {
@@ -352,6 +592,8 @@ public class FlowLayout extends ViewGroup {
                 this.horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_horizontalSpacing, NO_SPACING);
                 this.verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_verticalSpacing, NO_SPACING);
                 this.newLine = a.getBoolean(R.styleable.FlowLayout_LayoutParams_layout_newLine, false);
+                gravity = a.getInt(R.styleable.FlowLayout_LayoutParams_android_layout_gravity, gravity);
+                weight = a.getFloat(R.styleable.FlowLayout_LayoutParams_layout_weight, weight);
             } finally {
                 a.recycle();
             }

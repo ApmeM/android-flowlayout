@@ -7,3 +7,4 @@ target/
 .idea/
 .gradle
 build/
+*.orig
