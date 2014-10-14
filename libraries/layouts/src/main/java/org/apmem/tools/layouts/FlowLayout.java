@@ -28,6 +28,7 @@ public class FlowLayout extends ViewGroup {
     private float weightDefault;
     private int gravity = Gravity.LEFT | Gravity.TOP;
     private FillLines fillLines = FillLines.NONE;
+    private boolean centerJustified = false;
 
     public FlowLayout(Context context) {
         super(context);
@@ -297,7 +298,9 @@ public class FlowLayout extends ViewGroup {
                     } else {
                         offsetX += (extraSecondary * moveSecondary) / 2;
                     }
-                    plp.setPosition(plp.x + accOffsetX + offsetX, plp.y + accOffsetY + offsetY);
+                    if (!centerJustified){
+                        plp.setPosition(plp.x + accOffsetX + offsetX, plp.y + accOffsetY + offsetY);
+                    }
                     if (scalePrimary) {
                         if (orientation == HORIZONTAL) {
                             fillX += extraPrimary;
@@ -322,6 +325,12 @@ public class FlowLayout extends ViewGroup {
                         accOffsetX += extraPrimary;
                     } else {
                         accOffsetY += extraPrimary;
+                    }
+                }
+                if(centerJustified) {
+                    for (View prev : row) {
+                        LayoutParams plp = (LayoutParams) prev.getLayoutParams();
+                        plp.setPosition(plp.x + accOffsetX / 2, plp.y + accOffsetY / 2);
                     }
                 }
             }
@@ -356,8 +365,10 @@ public class FlowLayout extends ViewGroup {
             this.verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
             this.orientation = a.getInteger(R.styleable.FlowLayout_orientation, HORIZONTAL);
             this.debugDraw = a.getBoolean(R.styleable.FlowLayout_debugDraw, false);
-            weightSum = a.getFloat(R.styleable.FlowLayout_weightSum, 0.0f);
-            weightDefault = a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f);
+            this.weightSum = a.getFloat(R.styleable.FlowLayout_weightSum, 0.0f);
+            this.weightDefault = a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f);
+            this.centerJustified = a.getBoolean(R.styleable.FlowLayout_centerJustified, false);
+
             int gravityIndex = a.getInt(R.styleable.FlowLayout_android_gravity, -1);
             if (gravityIndex >= 0) {
                 setGravity(gravityIndex);
@@ -487,6 +498,15 @@ public class FlowLayout extends ViewGroup {
         requestLayout();
     }
 
+    public boolean isCenterJustified() {
+        return centerJustified;
+    }
+
+    public void setCenterJustified(boolean centerJustified) {
+        this.centerJustified = centerJustified;
+        requestLayout();
+    }
+
     public int getGravity() {
         return gravity;
     }
@@ -559,6 +579,7 @@ public class FlowLayout extends ViewGroup {
         public int gravity = Gravity.NO_GRAVITY;
         public float weight = -1.0f;
         public boolean newLine = false;
+        public boolean centerJustified;
 
         public LayoutParams(Context context, AttributeSet attributeSet) {
             super(context, attributeSet);
@@ -592,8 +613,9 @@ public class FlowLayout extends ViewGroup {
                 this.horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_horizontalSpacing, NO_SPACING);
                 this.verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_verticalSpacing, NO_SPACING);
                 this.newLine = a.getBoolean(R.styleable.FlowLayout_LayoutParams_layout_newLine, false);
-                gravity = a.getInt(R.styleable.FlowLayout_LayoutParams_android_layout_gravity, gravity);
-                weight = a.getFloat(R.styleable.FlowLayout_LayoutParams_layout_weight, weight);
+                this.gravity = a.getInt(R.styleable.FlowLayout_LayoutParams_android_layout_gravity, gravity);
+                this.weight = a.getFloat(R.styleable.FlowLayout_LayoutParams_layout_weight, weight);
+                this.centerJustified = a.getBoolean(R.styleable.FlowLayout_LayoutParams_layout_centerJustified, false);
             } finally {
                 a.recycle();
             }

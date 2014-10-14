@@ -14,6 +14,7 @@
         <attr name="debugDraw" format="boolean"/>
         <attr name="weightSum" format="float" />
         <attr name="weightDefault" format="float" />
+        <attr name="centerJustified" format="boolean" />
         <attr name="android:gravity"/>
     </declare-styleable>
     <declare-styleable name="FlowLayout_LayoutParams">
@@ -21,6 +22,7 @@
         <attr name="layout_horizontalSpacing" format="dimension"/>
         <attr name="layout_verticalSpacing" format="dimension"/>
         <attr name="layout_weight" format="float"/>
+        <attr name="layout_centerJustified" format="boolean" />
         <attr name="android:layout_gravity"/>
     </declare-styleable>
 </resources>
