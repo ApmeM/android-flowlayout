@@ -282,11 +282,11 @@ public class FlowLayout extends ViewGroup {
             this.debugDraw = a.getBoolean(R.styleable.FlowLayout_debugDraw, false);
             this.weightSum = a.getFloat(R.styleable.FlowLayout_weightSum, 0.0f);
             this.weightDefault = a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f);
-            int gravityIndex = a.getInt(R.styleable.FlowLayout_android_gravity, -1);
+            int gravityIndex = a.getInteger(R.styleable.FlowLayout_android_gravity, Gravity.NO_GRAVITY);
             if (gravityIndex >= 0) {
                 this.setGravity(gravityIndex);
             }
-            int fillLinesIndex = a.getInt(R.styleable.FlowLayout_fillLines, -1);
+            int fillLinesIndex = a.getInteger(R.styleable.FlowLayout_fillLines, FILL_LINES_NONE);
             if (fillLinesIndex >= 0) {
                 this.setFillLines(FillLines.from(fillLinesIndex));
             }
