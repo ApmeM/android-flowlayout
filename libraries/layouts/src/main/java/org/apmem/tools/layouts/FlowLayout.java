@@ -8,6 +8,9 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class FlowLayout extends ViewGroup {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
@@ -45,7 +48,7 @@ public class FlowLayout extends ViewGroup {
         int size;
         int mode;
 
-        if (orientation == HORIZONTAL) {
+        if (this.orientation == HORIZONTAL) {
             size = sizeWidth;
             mode = modeWidth;
         } else {
@@ -53,19 +56,13 @@ public class FlowLayout extends ViewGroup {
             mode = modeHeight;
         }
 
-        int lineThicknessWithSpacing = 0;
-        int lineThickness = 0;
-        int lineLengthWithSpacing = 0;
-        int lineLength;
+        List<LineDefinition> lines = new ArrayList<LineDefinition>();
+        LineDefinition line = new LineDefinition(0);
+        lines.add(line);
 
-        int prevLinePosition = 0;
-
-        int controlMaxLength = 0;
-        int controlMaxThickness = 0;
-
-        final int count = getChildCount();
+        final int count = this.getChildCount();
         for (int i = 0; i < count; i++) {
-            final View child = getChildAt(i);
+            final View child = this.getChildAt(i);
             if (child.getVisibility() == GONE) {
                 continue;
             }
@@ -88,7 +85,7 @@ public class FlowLayout extends ViewGroup {
             int spacingLength;
             int spacingThickness;
 
-            if (orientation == HORIZONTAL) {
+            if (this.orientation == HORIZONTAL) {
                 childLength = childWidth;
                 childThickness = childHeight;
                 spacingLength = hSpacing;
@@ -100,47 +97,43 @@ public class FlowLayout extends ViewGroup {
                 spacingThickness = hSpacing;
             }
 
-            lineLength = lineLengthWithSpacing + childLength;
-            lineLengthWithSpacing = lineLength + spacingLength;
-
-            boolean newLine = lp.newLine || (mode != MeasureSpec.UNSPECIFIED && lineLength > size);
+            boolean newLine = lp.newLine || (mode != MeasureSpec.UNSPECIFIED && line.lineLengthWithSpacing + childLength > size);
             if (newLine) {
-                prevLinePosition = prevLinePosition + lineThicknessWithSpacing;
-
-                lineThickness = childThickness;
-                lineLength = childLength;
-                lineThicknessWithSpacing = childThickness + spacingThickness;
-                lineLengthWithSpacing = lineLength + spacingLength;
+                line = new LineDefinition(line.linePosition + line.lineThicknessWithSpacing);
+                lines.add(line);
             }
-
-            lineThicknessWithSpacing = Math.max(lineThicknessWithSpacing, childThickness + spacingThickness);
-            lineThickness = Math.max(lineThickness, childThickness);
 
             int posX;
             int posY;
-            if (orientation == HORIZONTAL) {
-                posX = getPaddingLeft() + lineLength - childLength;
-                posY = getPaddingTop() + prevLinePosition;
+            if (this.orientation == HORIZONTAL) {
+                posX = this.getPaddingLeft() + line.lineLengthWithSpacing;
+                posY = this.getPaddingTop() + line.linePosition;
             } else {
-                posX = getPaddingLeft() + prevLinePosition;
-                posY = getPaddingTop() + lineLength - childHeight;
+                posX = this.getPaddingLeft() + line.linePosition;
+                posY = this.getPaddingTop() + line.lineLengthWithSpacing;
             }
             lp.setPosition(posX, posY);
 
-            controlMaxLength = Math.max(controlMaxLength, lineLength);
-            controlMaxThickness = prevLinePosition + lineThickness;
+            line.addLength(childLength, spacingLength);
+            line.addThickness(childThickness, spacingThickness);
         }
 
-        /* need to take paddings into account */
-        if (orientation == HORIZONTAL) {
-            controlMaxLength += getPaddingLeft() + getPaddingRight();
-            controlMaxThickness += getPaddingBottom() + getPaddingTop();
+        int controlMaxLength = 0;
+        for (LineDefinition l : lines) {
+            controlMaxLength = Math.max(controlMaxLength, l.lineLength);
+        }
+        int controlMaxThickness = line.linePosition + line.lineThickness;
+
+        /* need to take padding into account */
+        if (this.orientation == HORIZONTAL) {
+            controlMaxLength += this.getPaddingLeft() + this.getPaddingRight();
+            controlMaxThickness += this.getPaddingBottom() + this.getPaddingTop();
         } else {
-            controlMaxLength += getPaddingBottom() + getPaddingTop();
-            controlMaxThickness += getPaddingLeft() + getPaddingRight();
+            controlMaxLength += this.getPaddingBottom() + this.getPaddingTop();
+            controlMaxThickness += this.getPaddingLeft() + this.getPaddingRight();
         }
 
-        if (orientation == HORIZONTAL) {
+        if (this.orientation == HORIZONTAL) {
             this.setMeasuredDimension(resolveSize(controlMaxLength, widthMeasureSpec), resolveSize(controlMaxThickness, heightMeasureSpec));
         } else {
             this.setMeasuredDimension(resolveSize(controlMaxThickness, widthMeasureSpec), resolveSize(controlMaxLength, heightMeasureSpec));
@@ -148,30 +141,18 @@ public class FlowLayout extends ViewGroup {
     }
 
     private int getVerticalSpacing(LayoutParams lp) {
-        int vSpacing;
-        if (lp.verticalSpacingSpecified()) {
-            vSpacing = lp.verticalSpacing;
-        } else {
-            vSpacing = this.verticalSpacing;
-        }
-        return vSpacing;
+        return lp.verticalSpacingSpecified() ? lp.verticalSpacing : this.verticalSpacing;
     }
 
     private int getHorizontalSpacing(LayoutParams lp) {
-        int hSpacing;
-        if (lp.horizontalSpacingSpecified()) {
-            hSpacing = lp.horizontalSpacing;
-        } else {
-            hSpacing = this.horizontalSpacing;
-        }
-        return hSpacing;
+        return lp.horizontalSpacingSpecified() ? lp.horizontalSpacing : this.horizontalSpacing;
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        final int count = getChildCount();
+        final int count = this.getChildCount();
         for (int i = 0; i < count; i++) {
-            View child = getChildAt(i);
+            View child = this.getChildAt(i);
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
             child.layout(lp.x, lp.y, lp.x + child.getMeasuredWidth(), lp.y + child.getMeasuredHeight());
         }
@@ -196,7 +177,7 @@ public class FlowLayout extends ViewGroup {
 
     @Override
     public LayoutParams generateLayoutParams(AttributeSet attributeSet) {
-        return new LayoutParams(getContext(), attributeSet);
+        return new LayoutParams(this.getContext(), attributeSet);
     }
 
     @Override
@@ -217,7 +198,7 @@ public class FlowLayout extends ViewGroup {
     }
 
     private void drawDebugInfo(Canvas canvas, View child) {
-        if (!debugDraw) {
+        if (!this.debugDraw) {
             return;
         }
 
@@ -256,7 +237,7 @@ public class FlowLayout extends ViewGroup {
         }
 
         if (lp.newLine) {
-            if (orientation == HORIZONTAL) {
+            if (this.orientation == HORIZONTAL) {
                 float x = child.getLeft();
                 float y = child.getTop() + child.getHeight() / 2.0f;
                 canvas.drawLine(x, y - 6.0f, x, y + 6.0f, newLinePaint);
@@ -282,6 +263,7 @@ public class FlowLayout extends ViewGroup {
 
     public void setHorizontalSpacing(int horizontalSpacing) {
         this.horizontalSpacing = horizontalSpacing;
+        requestLayout();
     }
 
     public int getVerticalSpacing() {
@@ -290,6 +272,7 @@ public class FlowLayout extends ViewGroup {
 
     public void setVerticalSpacing(int verticalSpacing) {
         this.verticalSpacing = verticalSpacing;
+        this.requestLayout();
     }
 
     public int getOrientation() {
@@ -298,6 +281,7 @@ public class FlowLayout extends ViewGroup {
 
     public void setOrientation(int orientation) {
         this.orientation = orientation;
+        this.requestLayout();
     }
 
     public boolean isDebugDraw() {
@@ -306,6 +290,7 @@ public class FlowLayout extends ViewGroup {
 
     public void setDebugDraw(boolean debugDraw) {
         this.debugDraw = debugDraw;
+        this.invalidate();
     }
 
     public static class LayoutParams extends ViewGroup.LayoutParams {
@@ -355,6 +340,29 @@ public class FlowLayout extends ViewGroup {
             } finally {
                 a.recycle();
             }
+        }
+    }
+
+    private class LineDefinition {
+        private int lineLength;
+        private int lineThickness;
+        private int lineLengthWithSpacing;
+        private int lineThicknessWithSpacing;
+
+        private int linePosition;
+
+        public LineDefinition(int linePosition) {
+            this.linePosition = linePosition;
+        }
+
+        public void addLength(int childLength, int spacingLength) {
+            this.lineLength = this.lineLengthWithSpacing + childLength;
+            this.lineLengthWithSpacing = this.lineLength + spacingLength;
+        }
+
+        public void addThickness(int childThickness, int spacingThickness) {
+            this.lineThicknessWithSpacing = Math.max(this.lineThicknessWithSpacing, childThickness + spacingThickness);
+            this.lineThickness = Math.max(this.lineThickness, childThickness);
         }
     }
 }
