@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewDebug;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
@@ -475,6 +476,19 @@ public class FlowLayout extends ViewGroup {
         @android.view.ViewDebug.ExportedProperty(category = "layout", mapping = {@android.view.ViewDebug.IntToString(from = NO_SPACING, to = "NO_SPACING")})
         public int verticalSpacing = NO_SPACING;
         public boolean newLine = false;
+        @ViewDebug.ExportedProperty(mapping = {
+                @ViewDebug.IntToString(from = Gravity.NO_GRAVITY, to = "NONE"),
+                @ViewDebug.IntToString(from = Gravity.TOP, to = "TOP"),
+                @ViewDebug.IntToString(from = Gravity.BOTTOM, to = "BOTTOM"),
+                @ViewDebug.IntToString(from = Gravity.LEFT, to = "LEFT"),
+                @ViewDebug.IntToString(from = Gravity.RIGHT, to = "RIGHT"),
+                @ViewDebug.IntToString(from = Gravity.CENTER_VERTICAL, to = "CENTER_VERTICAL"),
+                @ViewDebug.IntToString(from = Gravity.FILL_VERTICAL, to = "FILL_VERTICAL"),
+                @ViewDebug.IntToString(from = Gravity.CENTER_HORIZONTAL, to = "CENTER_HORIZONTAL"),
+                @ViewDebug.IntToString(from = Gravity.FILL_HORIZONTAL, to = "FILL_HORIZONTAL"),
+                @ViewDebug.IntToString(from = Gravity.CENTER, to = "CENTER"),
+                @ViewDebug.IntToString(from = Gravity.FILL, to = "FILL")
+        })
         public int gravity = Gravity.NO_GRAVITY;
         public float weight = -1.0f;
 
