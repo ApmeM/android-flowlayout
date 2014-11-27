@@ -18,35 +18,26 @@ public class FlowLayout extends ViewGroup {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
 
-    private static final int FILL_LINES_NONE = 0;
-    private static final int FILL_LINES_EXCEPT_LAST = 1;
-    private static final int FILL_LINES_ALL = 2;
+    public static final int FILL_LINES_NONE = 0;
+    public static final int FILL_LINES_EXCEPT_LAST = 1;
+    public static final int FILL_LINES_ALL = 2;
 
-    private int horizontalSpacing = 0;
-    private int verticalSpacing = 0;
-    private int orientation = 0;
-    private boolean debugDraw = false;
-    private float weightSum;
-    private float weightDefault;
-    private int gravity = Gravity.LEFT | Gravity.TOP;
-    private FillLines fillLines = FillLines.NONE;
+    private final LayoutConfiguration config;
+    List<LineDefinition> lines = new ArrayList<LineDefinition>();
 
     public FlowLayout(Context context) {
         super(context);
-
-        this.readStyleParameters(context, null);
+        this.config = new LayoutConfiguration(context, null);
     }
 
     public FlowLayout(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-
-        this.readStyleParameters(context, attributeSet);
+        this.config = new LayoutConfiguration(context, attributeSet);
     }
 
     public FlowLayout(Context context, AttributeSet attributeSet, int defStyle) {
         super(context, attributeSet, defStyle);
-
-        this.readStyleParameters(context, attributeSet);
+        this.config = new LayoutConfiguration(context, attributeSet);
     }
 
     @Override
@@ -55,11 +46,11 @@ public class FlowLayout extends ViewGroup {
         final int sizeHeight = MeasureSpec.getSize(heightMeasureSpec) - this.getPaddingTop() - this.getPaddingBottom();
         final int modeWidth = MeasureSpec.getMode(widthMeasureSpec);
         final int modeHeight = MeasureSpec.getMode(heightMeasureSpec);
-        final int size = this.orientation == HORIZONTAL ? sizeWidth : sizeHeight;
-        final int mode = this.orientation == HORIZONTAL ? modeWidth : modeHeight;
+        final int size = this.config.getOrientation() == HORIZONTAL ? sizeWidth : sizeHeight;
+        final int mode = this.config.getOrientation() == HORIZONTAL ? modeWidth : modeHeight;
 
-        List<LineDefinition> lines = new ArrayList<LineDefinition>();
-        LineDefinition line = new LineDefinition(0);
+        lines.clear();
+        LineDefinition line = new LineDefinition(0, size, config);
         lines.add(line);
 
         final int count = this.getChildCount();
@@ -76,41 +67,23 @@ public class FlowLayout extends ViewGroup {
                     getChildMeasureSpec(heightMeasureSpec, this.getPaddingTop() + this.getPaddingBottom(), lp.height)
             );
 
-            final int hSpacing = lp.verticalSpacingSpecified() ? lp.verticalSpacing : this.verticalSpacing;
-            final int vSpacing =  lp.horizontalSpacingSpecified() ? lp.horizontalSpacing : this.horizontalSpacing;
-            final int childWidth = child.getMeasuredWidth();
-            final int childHeight = child.getMeasuredHeight();
-            final int childLength = this.orientation == HORIZONTAL ? childWidth : childHeight;
-            final int childThickness = this.orientation == HORIZONTAL ? childHeight : childWidth;
-            final int spacingLength = this.orientation == HORIZONTAL ? hSpacing : vSpacing;
-            final int spacingThickness = this.orientation == HORIZONTAL ? vSpacing : hSpacing;
-
-            boolean newLine = lp.newLine || (mode != MeasureSpec.UNSPECIFIED && line.lineLengthWithSpacing + childLength > size);
+            boolean newLine = lp.newLine || (mode != MeasureSpec.UNSPECIFIED && !line.canFit(child));
             if (newLine) {
-                line = new LineDefinition(line.linePosition + line.lineThicknessWithSpacing);
+                line = new LineDefinition(line.getLinePosition() + line.getLineThicknessWithSpacing(), size, config);
                 lines.add(line);
             }
 
-            int posX;
-            int posY;
-            if (this.orientation == HORIZONTAL) {
-                posX = this.getPaddingLeft() + line.lineLengthWithSpacing;
-                posY = this.getPaddingTop() + line.linePosition;
-            } else {
-                posX = this.getPaddingLeft() + line.linePosition;
-                posY = this.getPaddingTop() + line.lineLengthWithSpacing;
-            }
+            int posX = this.config.getOrientation() == HORIZONTAL ? this.getPaddingLeft() + line.getLineLengthWithSpacing() : this.getPaddingLeft() + line.getLinePosition();
+            int posY = this.config.getOrientation() == HORIZONTAL ? this.getPaddingTop() + line.getLinePosition() : this.getPaddingTop() + line.getLineLengthWithSpacing();
             lp.setPosition(posX, posY);
 
             line.addView(child);
-            line.addLength(childLength, spacingLength);
-            line.addThickness(childThickness, spacingThickness);
         }
 
-        if (this.fillLines != FillLines.NONE) {
+        if (this.config.getFillLines() != FILL_LINES_NONE) {
             int linesSize = lines.size();
             for (int i = 0; i < linesSize; i++) {
-                if (i == linesSize - 1 && this.fillLines == FillLines.EXCEPT_LAST) {
+                if (i == linesSize - 1 && this.config.getFillLines() == FILL_LINES_EXCEPT_LAST) {
                     continue;
                 }
 
@@ -120,12 +93,12 @@ public class FlowLayout extends ViewGroup {
 
         int controlMaxLength = 0;
         for (LineDefinition l : lines) {
-            controlMaxLength = Math.max(controlMaxLength, l.lineLength);
+            controlMaxLength = Math.max(controlMaxLength, l.getLineLength());
         }
-        int controlMaxThickness = line.linePosition + line.lineThickness;
+        int controlMaxThickness = line.getLinePosition() + line.getLineThickness();
 
         /* need to take padding into account */
-        if (this.orientation == HORIZONTAL) {
+        if (this.config.getOrientation() == HORIZONTAL) {
             controlMaxLength += this.getPaddingLeft() + this.getPaddingRight();
             controlMaxThickness += this.getPaddingBottom() + this.getPaddingTop();
         } else {
@@ -133,7 +106,7 @@ public class FlowLayout extends ViewGroup {
             controlMaxThickness += this.getPaddingLeft() + this.getPaddingRight();
         }
 
-        if (this.orientation == HORIZONTAL) {
+        if (this.config.getOrientation() == HORIZONTAL) {
             this.setMeasuredDimension(resolveSize(controlMaxLength, widthMeasureSpec), resolveSize(controlMaxThickness, heightMeasureSpec));
         } else {
             this.setMeasuredDimension(resolveSize(controlMaxThickness, widthMeasureSpec), resolveSize(controlMaxLength, heightMeasureSpec));
@@ -141,16 +114,16 @@ public class FlowLayout extends ViewGroup {
     }
 
     private void fillLine(int size, LineDefinition line) {
-        int lineCount = line.views.size();
+        int lineCount = line.getViews().size();
         float totalWeight = 0;
         if (lineCount <= 0) {
             return;
         }
 
-        if (this.weightSum > 0) {
-            totalWeight = this.weightSum;
+        if (this.config.getWeightSum() > 0) {
+            totalWeight = this.config.getWeightSum();
         } else {
-            for (View prev : line.views) {
+            for (View prev : line.getViews()) {
                 LayoutParams plp = (LayoutParams) prev.getLayoutParams();
                 float weight = this.getWeight(plp);
                 totalWeight += weight;
@@ -161,9 +134,9 @@ public class FlowLayout extends ViewGroup {
             return;
         }
 
-        int excessLength = size - line.lineLength;
+        int excessLength = size - line.getLineLength();
         int excessOffset = 0;
-        for (View child : line.views) {
+        for (View child : line.getViews()) {
             LayoutParams plp = (LayoutParams) child.getLayoutParams();
 
             float weight = this.getWeight(plp);
@@ -174,13 +147,13 @@ public class FlowLayout extends ViewGroup {
             final int childHeight = child.getMeasuredHeight();
 
             Rect container = new Rect();
-            if (this.orientation == HORIZONTAL) {
+            if (this.config.getOrientation() == HORIZONTAL) {
                 container.left = excessOffset;
                 container.right = childWidth + extraLength + excessOffset;
-                container.bottom = line.lineThickness;
+                container.bottom = line.getLineThickness();
             } else {
                 container.top = excessOffset;
-                container.right = line.lineThickness;
+                container.right = line.getLineThickness();
                 container.bottom = childHeight + extraLength + excessOffset;
             }
 
@@ -196,20 +169,12 @@ public class FlowLayout extends ViewGroup {
         }
     }
 
-    private int getVerticalSpacing(LayoutParams lp) {
-        return lp.verticalSpacingSpecified() ? lp.verticalSpacing : this.verticalSpacing;
-    }
-
-    private int getHorizontalSpacing(LayoutParams lp) {
-        return lp.horizontalSpacingSpecified() ? lp.horizontalSpacing : this.horizontalSpacing;
-    }
-
     private int getGravity(LayoutParams lp) {
-        return lp.gravitySpecified() ? lp.gravity : this.gravity;
+        return lp.gravitySpecified() ? lp.gravity : this.config.getGravity();
     }
 
     private float getWeight(LayoutParams lp) {
-        return lp.weightSpecified() ? lp.weight : this.weightDefault;
+        return lp.weightSpecified() ? lp.weight : this.config.getWeightDefault();
     }
 
     @Override
@@ -249,30 +214,8 @@ public class FlowLayout extends ViewGroup {
         return new LayoutParams(p);
     }
 
-    private void readStyleParameters(Context context, AttributeSet attributeSet) {
-        TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
-        try {
-            this.horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0);
-            this.verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0);
-            this.orientation = a.getInteger(R.styleable.FlowLayout_orientation, HORIZONTAL);
-            this.debugDraw = a.getBoolean(R.styleable.FlowLayout_debugDraw, false);
-            this.weightSum = a.getFloat(R.styleable.FlowLayout_weightSum, 0.0f);
-            this.weightDefault = a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f);
-            int gravityIndex = a.getInteger(R.styleable.FlowLayout_android_gravity, Gravity.NO_GRAVITY);
-            if (gravityIndex >= 0) {
-                this.setGravity(gravityIndex);
-            }
-            int fillLinesIndex = a.getInteger(R.styleable.FlowLayout_fillLines, FILL_LINES_NONE);
-            if (fillLinesIndex >= 0) {
-                this.setFillLines(FillLines.from(fillLinesIndex));
-            }
-        } finally {
-            a.recycle();
-        }
-    }
-
     private void drawDebugInfo(Canvas canvas, View child) {
-        if (!this.debugDraw) {
+        if (!this.config.isDebugDraw()) {
             return;
         }
 
@@ -288,12 +231,12 @@ public class FlowLayout extends ViewGroup {
             canvas.drawLine(x, y, x + lp.horizontalSpacing, y, childPaint);
             canvas.drawLine(x + lp.horizontalSpacing - 4.0f, y - 4.0f, x + lp.horizontalSpacing, y, childPaint);
             canvas.drawLine(x + lp.horizontalSpacing - 4.0f, y + 4.0f, x + lp.horizontalSpacing, y, childPaint);
-        } else if (this.horizontalSpacing > 0) {
+        } else if (this.config.getHorizontalSpacing() > 0) {
             float x = child.getRight();
             float y = child.getTop() + child.getHeight() / 2.0f;
-            canvas.drawLine(x, y, x + this.horizontalSpacing, y, layoutPaint);
-            canvas.drawLine(x + this.horizontalSpacing - 4.0f, y - 4.0f, x + this.horizontalSpacing, y, layoutPaint);
-            canvas.drawLine(x + this.horizontalSpacing - 4.0f, y + 4.0f, x + this.horizontalSpacing, y, layoutPaint);
+            canvas.drawLine(x, y, x + this.config.getHorizontalSpacing(), y, layoutPaint);
+            canvas.drawLine(x + this.config.getHorizontalSpacing() - 4.0f, y - 4.0f, x + this.config.getHorizontalSpacing(), y, layoutPaint);
+            canvas.drawLine(x + this.config.getHorizontalSpacing() - 4.0f, y + 4.0f, x + this.config.getHorizontalSpacing(), y, layoutPaint);
         }
 
         if (lp.verticalSpacing > 0) {
@@ -302,16 +245,16 @@ public class FlowLayout extends ViewGroup {
             canvas.drawLine(x, y, x, y + lp.verticalSpacing, childPaint);
             canvas.drawLine(x - 4.0f, y + lp.verticalSpacing - 4.0f, x, y + lp.verticalSpacing, childPaint);
             canvas.drawLine(x + 4.0f, y + lp.verticalSpacing - 4.0f, x, y + lp.verticalSpacing, childPaint);
-        } else if (this.verticalSpacing > 0) {
+        } else if (this.config.getVerticalSpacing() > 0) {
             float x = child.getLeft() + child.getWidth() / 2.0f;
             float y = child.getBottom();
-            canvas.drawLine(x, y, x, y + this.verticalSpacing, layoutPaint);
-            canvas.drawLine(x - 4.0f, y + this.verticalSpacing - 4.0f, x, y + this.verticalSpacing, layoutPaint);
-            canvas.drawLine(x + 4.0f, y + this.verticalSpacing - 4.0f, x, y + this.verticalSpacing, layoutPaint);
+            canvas.drawLine(x, y, x, y + this.config.getVerticalSpacing(), layoutPaint);
+            canvas.drawLine(x - 4.0f, y + this.config.getVerticalSpacing() - 4.0f, x, y + this.config.getVerticalSpacing(), layoutPaint);
+            canvas.drawLine(x + 4.0f, y + this.config.getVerticalSpacing() - 4.0f, x, y + this.config.getVerticalSpacing(), layoutPaint);
         }
 
         if (lp.newLine) {
-            if (this.orientation == HORIZONTAL) {
+            if (this.config.getOrientation() == HORIZONTAL) {
                 float x = child.getLeft();
                 float y = child.getTop() + child.getHeight() / 2.0f;
                 canvas.drawLine(x, y - 6.0f, x, y + 6.0f, newLinePaint);
@@ -332,113 +275,75 @@ public class FlowLayout extends ViewGroup {
     }
 
     public int getHorizontalSpacing() {
-        return this.horizontalSpacing;
+        return this.config.getHorizontalSpacing();
     }
 
     public void setHorizontalSpacing(int horizontalSpacing) {
-        this.horizontalSpacing = horizontalSpacing;
+        this.config.setHorizontalSpacing(horizontalSpacing);
         this.requestLayout();
     }
 
     public int getVerticalSpacing() {
-        return this.verticalSpacing;
+        return this.config.getVerticalSpacing();
     }
 
     public void setVerticalSpacing(int verticalSpacing) {
-        this.verticalSpacing = verticalSpacing;
+        this.config.setVerticalSpacing(verticalSpacing);
         this.requestLayout();
     }
 
     public int getOrientation() {
-        return this.orientation;
+        return this.config.getOrientation();
     }
 
     public void setOrientation(int orientation) {
-        this.orientation = orientation;
+        this.config.setOrientation(orientation);
         this.requestLayout();
     }
 
     public boolean isDebugDraw() {
-        return this.debugDraw;
+        return this.config.isDebugDraw();
     }
 
     public void setDebugDraw(boolean debugDraw) {
-        this.debugDraw = debugDraw;
+        this.config.setDebugDraw(debugDraw);
         this.invalidate();
     }
 
     public float getWeightSum() {
-        return this.weightSum;
+        return this.config.getWeightSum();
     }
 
     public void setWeightSum(float weightSum) {
-        this.weightSum = Math.max(0, weightSum);
+        this.config.setWeightSum(weightSum);
         this.requestLayout();
     }
 
     public float getWeightDefault() {
-        return this.weightDefault;
+        return this.config.getWeightDefault();
     }
 
     public void setWeightDefault(float weightDefault) {
-        this.weightDefault = Math.max(0, weightDefault);
+        this.config.setWeightDefault(weightDefault);
         this.requestLayout();
     }
 
     public int getGravity() {
-        return this.gravity;
+        return this.config.getGravity();
     }
 
     public void setGravity(int gravity) {
-        if (this.gravity == gravity) {
-            return;
-        }
-
-        if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == 0) {
-            gravity |= Gravity.LEFT;
-        }
-
-        if ((gravity & Gravity.VERTICAL_GRAVITY_MASK) == 0) {
-            gravity |= Gravity.TOP;
-        }
-
-        this.gravity = gravity;
+        this.config.setGravity(gravity);
         this.requestLayout();
     }
 
-    public FillLines getFillLines() {
-        return this.fillLines;
+    public int getFillLines() {
+        return this.config.getFillLines();
     }
 
-    public void setFillLines(FillLines fillLines) {
-        this.fillLines = fillLines != null ? fillLines : FillLines.NONE;
+    public void setFillLines(int fillLines) {
+        this.config.setFillLines(fillLines);
         this.requestLayout();
-    }
-
-    public enum FillLines {
-        NONE(FILL_LINES_NONE),
-        EXCEPT_LAST(FILL_LINES_EXCEPT_LAST),
-        ALL(FILL_LINES_ALL);
-
-        private final int intValue;
-
-        FillLines(int intValue) {
-            this.intValue = intValue;
-        }
-
-        public static FillLines from(int intValue) {
-            if (intValue == EXCEPT_LAST.getIntValue()) {
-                return EXCEPT_LAST;
-            } else if (intValue == ALL.getIntValue()) {
-                return ALL;
-            } else {
-                return NONE;
-            }
-        }
-
-        public int getIntValue() {
-            return this.intValue;
-        }
     }
 
     public static class LayoutParams extends ViewGroup.LayoutParams {
@@ -513,33 +418,6 @@ public class FlowLayout extends ViewGroup {
             } finally {
                 a.recycle();
             }
-        }
-    }
-
-    private class LineDefinition {
-        private final List<View> views = new ArrayList<View>();
-        private int lineLength;
-        private int lineThickness;
-        private int lineLengthWithSpacing;
-        private int lineThicknessWithSpacing;
-        private int linePosition;
-
-        public LineDefinition(int linePosition) {
-            this.linePosition = linePosition;
-        }
-
-        public void addLength(int childLength, int spacingLength) {
-            this.lineLength = this.lineLengthWithSpacing + childLength;
-            this.lineLengthWithSpacing = this.lineLength + spacingLength;
-        }
-
-        public void addThickness(int childThickness, int spacingThickness) {
-            this.lineThicknessWithSpacing = Math.max(this.lineThicknessWithSpacing, childThickness + spacingThickness);
-            this.lineThickness = Math.max(this.lineThickness, childThickness);
-        }
-
-        public void addView(View child) {
-            this.views.add(child);
         }
     }
 }
