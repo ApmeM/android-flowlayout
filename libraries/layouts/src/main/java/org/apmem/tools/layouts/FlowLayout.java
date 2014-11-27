@@ -51,22 +51,12 @@ public class FlowLayout extends ViewGroup {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int sizeWidth = MeasureSpec.getSize(widthMeasureSpec) - this.getPaddingRight() - this.getPaddingLeft();
-        int sizeHeight = MeasureSpec.getSize(heightMeasureSpec) - this.getPaddingTop() - this.getPaddingBottom();
-
-        int modeWidth = MeasureSpec.getMode(widthMeasureSpec);
-        int modeHeight = MeasureSpec.getMode(heightMeasureSpec);
-
-        int size;
-        int mode;
-
-        if (this.orientation == HORIZONTAL) {
-            size = sizeWidth;
-            mode = modeWidth;
-        } else {
-            size = sizeHeight;
-            mode = modeHeight;
-        }
+        final int sizeWidth = MeasureSpec.getSize(widthMeasureSpec) - this.getPaddingRight() - this.getPaddingLeft();
+        final int sizeHeight = MeasureSpec.getSize(heightMeasureSpec) - this.getPaddingTop() - this.getPaddingBottom();
+        final int modeWidth = MeasureSpec.getMode(widthMeasureSpec);
+        final int modeHeight = MeasureSpec.getMode(heightMeasureSpec);
+        final int size = this.orientation == HORIZONTAL ? sizeWidth : sizeHeight;
+        final int mode = this.orientation == HORIZONTAL ? modeWidth : modeHeight;
 
         List<LineDefinition> lines = new ArrayList<LineDefinition>();
         LineDefinition line = new LineDefinition(0);
@@ -79,35 +69,21 @@ public class FlowLayout extends ViewGroup {
                 continue;
             }
 
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
+            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
             child.measure(
                     getChildMeasureSpec(widthMeasureSpec, this.getPaddingLeft() + this.getPaddingRight(), lp.width),
                     getChildMeasureSpec(heightMeasureSpec, this.getPaddingTop() + this.getPaddingBottom(), lp.height)
             );
 
-            final int hSpacing = this.getHorizontalSpacing(lp);
-            final int vSpacing = this.getVerticalSpacing(lp);
-
+            final int hSpacing = lp.verticalSpacingSpecified() ? lp.verticalSpacing : this.verticalSpacing;
+            final int vSpacing =  lp.horizontalSpacingSpecified() ? lp.horizontalSpacing : this.horizontalSpacing;
             final int childWidth = child.getMeasuredWidth();
             final int childHeight = child.getMeasuredHeight();
-
-            int childLength;
-            int childThickness;
-            int spacingLength;
-            int spacingThickness;
-
-            if (this.orientation == HORIZONTAL) {
-                childLength = childWidth;
-                childThickness = childHeight;
-                spacingLength = hSpacing;
-                spacingThickness = vSpacing;
-            } else {
-                childLength = childHeight;
-                childThickness = childWidth;
-                spacingLength = vSpacing;
-                spacingThickness = hSpacing;
-            }
+            final int childLength = this.orientation == HORIZONTAL ? childWidth : childHeight;
+            final int childThickness = this.orientation == HORIZONTAL ? childHeight : childWidth;
+            final int spacingLength = this.orientation == HORIZONTAL ? hSpacing : vSpacing;
+            final int spacingThickness = this.orientation == HORIZONTAL ? vSpacing : hSpacing;
 
             boolean newLine = lp.newLine || (mode != MeasureSpec.UNSPECIFIED && line.lineLengthWithSpacing + childLength > size);
             if (newLine) {
