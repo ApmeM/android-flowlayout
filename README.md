@@ -8,13 +8,13 @@ Extended linear layout that wrap its content when there is no place in the curre
 
 Horizontal:
 
-![](https://raw.githubusercontent.com/ApmeM/android-flowlayout/raw/master/img/horizontal_portrait.png)
-![](https://raw.githubusercontent.com/ApmeM/android-flowlayout/raw/master/img/horizontal_album.png)
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_portrait.png)
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_album.png)
 
 Horizontal rtl:
 
-![](https://raw.githubusercontent.com/ApmeM/android-flowlayout/master/img/horizontal_portrait_rtl.png)
-![](https://raw.githubusercontent.com/ApmeM/android-flowlayout/master/img/horizontal_landscape_rtl.png)
+![](https://github.com/ApmeM/android-flowlayout/master/img/horizontal_portrait_rtl.png)
+![](https://github.com/ApmeM/android-flowlayout/master/img/horizontal_landscape_rtl.png)
 
 Vertical:
 
