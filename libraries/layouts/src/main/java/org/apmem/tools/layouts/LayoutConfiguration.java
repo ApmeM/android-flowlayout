@@ -13,7 +13,6 @@ class LayoutConfiguration {
     private float weightSum = 0;
     private float weightDefault = 0;
     private int gravity = Gravity.LEFT | Gravity.TOP;
-    private int fillLines = FlowLayout.FILL_LINES_NONE;
 
     public LayoutConfiguration(Context context, AttributeSet attributeSet) {
         TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
@@ -25,7 +24,6 @@ class LayoutConfiguration {
             this.setWeightSum(a.getFloat(R.styleable.FlowLayout_weightSum, 0.0f));
             this.setWeightDefault(a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f));
             this.setGravity(a.getInteger(R.styleable.FlowLayout_android_gravity, Gravity.NO_GRAVITY));
-            this.setFillLines(a.getInteger(R.styleable.FlowLayout_fillLines, FlowLayout.FILL_LINES_NONE));
         } finally {
             a.recycle();
         }
@@ -97,16 +95,5 @@ class LayoutConfiguration {
         }
 
         this.gravity = gravity;
-    }
-
-    public int getFillLines() {
-        return this.fillLines;
-    }
-
-    public void setFillLines(int fillLines) {
-        if (fillLines != FlowLayout.FILL_LINES_EXCEPT_LAST && fillLines != FlowLayout.FILL_LINES_ALL)
-            this.fillLines = FlowLayout.FILL_LINES_NONE;
-        else
-            this.fillLines = fillLines;
     }
 }

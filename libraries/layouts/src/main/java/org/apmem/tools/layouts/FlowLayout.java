@@ -18,10 +18,6 @@ public class FlowLayout extends ViewGroup {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
 
-    public static final int FILL_LINES_NONE = 0;
-    public static final int FILL_LINES_EXCEPT_LAST = 1;
-    public static final int FILL_LINES_ALL = 2;
-
     private final LayoutConfiguration config;
     List<LineDefinition> lines = new ArrayList<LineDefinition>();
 
@@ -103,13 +99,6 @@ public class FlowLayout extends ViewGroup {
 
         this.applyGravityToLines(lines, controlBorder, contentLength, contentThickness);
 
-//        int linesSize = lines.size();
-//        for (int i = 0; i < linesSize; i++) {
-////            Right now gravity should be applied to all lines
-//            if (i == linesSize - 1 && this.config.getFillLines() == FILL_LINES_EXCEPT_LAST) {
-//                continue;
-//            }
-//        }
         for (LineDefinition line : lines) {
             this.applyGravityToLine(line);
             this.applyPositionsToViews(line);
@@ -390,15 +379,6 @@ public class FlowLayout extends ViewGroup {
 
     public void setGravity(int gravity) {
         this.config.setGravity(gravity);
-        this.requestLayout();
-    }
-
-    public int getFillLines() {
-        return this.config.getFillLines();
-    }
-
-    public void setFillLines(int fillLines) {
-        this.config.setFillLines(fillLines);
         this.requestLayout();
     }
 

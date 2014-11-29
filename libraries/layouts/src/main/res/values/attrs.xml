@@ -6,11 +6,6 @@
             <enum name="horizontal" value="0"/>
             <enum name="vertical" value="1"/>
         </attr>
-        <attr name="fillLines" format="enum">
-            <enum name="none" value="0"/>
-            <enum name="exceptLast" value="1"/>
-            <enum name="all" value="2"/>
-        </attr>
         <attr name="debugDraw" format="boolean"/>
         <attr name="weightSum" format="float" />
         <attr name="weightDefault" format="float" />

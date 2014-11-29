@@ -11,7 +11,6 @@
             f:horizontalSpacing="12dip"
             f:verticalSpacing="6dip"
             f:debugDraw="true"
-            f:fillLines="all"
             f:weightDefault="1.0"
             android:gravity="center_vertical|fill_horizontal"
             android:layout_width="fill_parent"
