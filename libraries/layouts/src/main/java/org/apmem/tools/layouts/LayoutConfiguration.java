@@ -10,7 +10,6 @@ class LayoutConfiguration {
     private int verticalSpacing = 0;
     private int orientation = FlowLayout.HORIZONTAL;
     private boolean debugDraw = false;
-    private float weightSum = 0;
     private float weightDefault = 0;
     private int gravity = Gravity.LEFT | Gravity.TOP;
     private int layoutDirection = FlowLayout.LAYOUT_DIRECTION_LTR;
@@ -22,7 +21,6 @@ class LayoutConfiguration {
             this.setVerticalSpacing(a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0));
             this.setOrientation(a.getInteger(R.styleable.FlowLayout_orientation, FlowLayout.HORIZONTAL));
             this.setDebugDraw(a.getBoolean(R.styleable.FlowLayout_debugDraw, false));
-            this.setWeightSum(a.getFloat(R.styleable.FlowLayout_weightSum, 0.0f));
             this.setWeightDefault(a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f));
             this.setGravity(a.getInteger(R.styleable.FlowLayout_android_gravity, Gravity.NO_GRAVITY));
             this.setLayoutDirection(a.getInteger(R.styleable.FlowLayout_layoutDirection, FlowLayout.LAYOUT_DIRECTION_LTR));
@@ -67,14 +65,6 @@ class LayoutConfiguration {
         this.debugDraw = debugDraw;
     }
 
-    public float getWeightSum() {
-        return this.weightSum;
-    }
-
-    public void setWeightSum(float weightSum) {
-        this.weightSum = Math.max(0, weightSum);
-    }
-
     public float getWeightDefault() {
         return this.weightDefault;
     }
@@ -99,15 +89,15 @@ class LayoutConfiguration {
         this.gravity = gravity;
     }
 
+    public int getLayoutDirection() {
+        return layoutDirection;
+    }
+
     public void setLayoutDirection(int layoutDirection) {
         if (layoutDirection == FlowLayout.LAYOUT_DIRECTION_RTL) {
             this.layoutDirection = layoutDirection;
         } else {
             this.layoutDirection = FlowLayout.LAYOUT_DIRECTION_LTR;
         }
-    }
-
-    public int getLayoutDirection() {
-        return layoutDirection;
     }
 }

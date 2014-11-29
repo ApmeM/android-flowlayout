@@ -75,12 +75,8 @@ class LineDefinition {
         return lineStartThickness;
     }
 
-    public int getLineThicknessWithSpacing() {
+    public int getLineThickness() {
         return lineThicknessWithSpacing;
-    }
-
-    public int getLineLengthWithSpacing() {
-        return lineLengthWithSpacing;
     }
 
     public int getLineLength() {
@@ -91,29 +87,27 @@ class LineDefinition {
         return lineStartLength;
     }
 
-    public int getLineThickness() {
-        return lineThickness;
-    }
-
     public List<ViewContainer> getViews() {
         return views;
     }
 
-    public void addThickness(int extraThickness) {
-        this.lineThickness += extraThickness;
-        this.lineThicknessWithSpacing += extraThickness;
+    public void setThickness(int thickness) {
+        int thicknessSpacing = this.lineThicknessWithSpacing - this.lineThickness;
+        this.lineThicknessWithSpacing = thickness;
+        this.lineThickness = thickness - thicknessSpacing;
     }
 
-    public void addStartThickness(int extraLineStartThickness) {
+    public void setLength(int length) {
+        int lengthSpacing = this.lineLengthWithSpacing - this.lineLength;
+        this.lineLength = length;
+        this.lineLengthWithSpacing = length + lengthSpacing;
+    }
+
+    public void addLineStartThickness(int extraLineStartThickness) {
         this.lineStartThickness += extraLineStartThickness;
     }
 
-    public void addLength(int extraLength) {
-        this.lineLength += extraLength;
-        this.lineLengthWithSpacing += extraLength;
-    }
-
-    public void addStartLength(int extraLineStartLength) {
+    public void addLineStartLength(int extraLineStartLength) {
         this.lineStartLength += extraLineStartLength;
     }
 }

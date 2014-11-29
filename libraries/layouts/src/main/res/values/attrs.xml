@@ -11,7 +11,6 @@
             <enum name="rtl" value="1"/>
         </attr>
         <attr name="debugDraw" format="boolean"/>
-        <attr name="weightSum" format="float" />
         <attr name="weightDefault" format="float" />
         <attr name="android:gravity"/>
     </declare-styleable>

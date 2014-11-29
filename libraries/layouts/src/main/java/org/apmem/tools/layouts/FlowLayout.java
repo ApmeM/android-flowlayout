@@ -79,7 +79,7 @@ public class FlowLayout extends ViewGroup {
 
             if (this.config.getOrientation() == HORIZONTAL && this.config.getLayoutDirection() == LAYOUT_DIRECTION_RTL) {
                 currentLine.addView(0, child);
-            }else{
+            } else {
                 currentLine.addView(child);
             }
         }
@@ -92,24 +92,30 @@ public class FlowLayout extends ViewGroup {
         }
         int contentThickness = currentLine.getLineStartThickness() + currentLine.getLineThickness();
 
-        Rect controlBorder = new Rect();
+        int realControlLength;
+        int realControlThickness;
         switch (modeLength) {
             case MeasureSpec.UNSPECIFIED:
-                controlBorder.right = contentLength;
-                controlBorder.bottom = contentThickness;
+                realControlLength = contentLength;
+                realControlThickness = contentThickness;
                 break;
             case MeasureSpec.AT_MOST:
-                controlBorder.right = Math.min(contentLength, controlMaxLength);
-                controlBorder.bottom = Math.min(contentThickness, controlMaxThickness);
+                realControlLength = Math.min(contentLength, controlMaxLength);
+                realControlThickness = Math.min(contentThickness, controlMaxThickness);
                 break;
             case MeasureSpec.EXACTLY:
-                controlBorder.right = controlMaxLength;
+                realControlLength = controlMaxLength;
 // With this line control will be exactly this size (an all child elements will be narrower in case of lack of thickness)
-//                controlBorder.bottom = controlMaxThickness;
-                controlBorder.bottom = Math.max(contentThickness, controlMaxThickness);
+//                realControlThickness = controlMaxThickness;
+                realControlThickness = Math.max(contentThickness, controlMaxThickness);
+                break;
+            default:
+                realControlLength = contentLength;
+                realControlThickness = contentThickness;
+                break;
         }
 
-        this.applyGravityToLines(lines, controlBorder, contentLength, contentThickness);
+        this.applyGravityToLines(lines, realControlLength, realControlThickness);
 
         for (LineDefinition line : lines) {
             this.applyGravityToLine(line);
@@ -131,11 +137,11 @@ public class FlowLayout extends ViewGroup {
 
     private void calculateLinesAndChildsPosition(List<LineDefinition> lines) {
         int prevLinesThickness = 0;
-        for(LineDefinition line : lines){
-            line.addStartThickness(prevLinesThickness);
-            prevLinesThickness += line.getLineThicknessWithSpacing();
+        for (LineDefinition line : lines) {
+            line.addLineStartThickness(prevLinesThickness);
+            prevLinesThickness += line.getLineThickness();
             int prevChildThickness = 0;
-            for (ViewContainer child : line.getViews()){
+            for (ViewContainer child : line.getViews()) {
                 child.setInlineStartLength(prevChildThickness);
                 prevChildThickness += child.getLength() + child.getSpacingLength();
             }
@@ -146,7 +152,7 @@ public class FlowLayout extends ViewGroup {
         for (ViewContainer child : line.getViews()) {
             if (this.config.getOrientation() == HORIZONTAL) {
                 ((LayoutParams) child.getView().getLayoutParams()).setPosition(
-                        this.getPaddingLeft() + child.getInlineStartLength(),
+                        this.getPaddingLeft() + line.getLineStartLength() + child.getInlineStartLength(),
                         this.getPaddingTop() + line.getLineStartThickness() + child.getInlineStartThickness());
                 child.getView().measure(
                         MeasureSpec.makeMeasureSpec(child.getLength(), MeasureSpec.EXACTLY),
@@ -155,7 +161,7 @@ public class FlowLayout extends ViewGroup {
             } else {
                 ((LayoutParams) child.getView().getLayoutParams()).setPosition(
                         this.getPaddingLeft() + line.getLineStartThickness() + child.getInlineStartThickness(),
-                        this.getPaddingTop() + child.getInlineStartLength());
+                        this.getPaddingTop() + line.getLineStartLength() + child.getInlineStartLength());
                 child.getView().measure(
                         MeasureSpec.makeMeasureSpec(child.getThickness(), MeasureSpec.EXACTLY),
                         MeasureSpec.makeMeasureSpec(child.getLength(), MeasureSpec.EXACTLY)
@@ -164,49 +170,51 @@ public class FlowLayout extends ViewGroup {
         }
     }
 
-    private void applyGravityToLines(List<LineDefinition> lines, Rect controlBorder, int controlLength, int controlThickness) {
+    private void applyGravityToLines(List<LineDefinition> lines, int realControlLength, int realControlThickness) {
         final int linesCount = lines.size();
+        if (linesCount <= 0) {
+            return;
+        }
+
         final int totalWeight = linesCount;
-        final int gravity = this.getGravity();
-        Rect realControlPosition = new Rect();
-        Gravity.apply(gravity, controlLength, controlThickness, controlBorder, realControlPosition);
-        // Weight of all lines are same as it is impossible to configure line by line.
-        final int weight = 1;
-        int excessThickness = realControlPosition.height() - controlThickness;
-        final int extraThickness = Math.round(excessThickness * weight / totalWeight);
-        for (int i = 0; i < linesCount; i++) {
-            LineDefinition line = lines.get(i);
-            line.addThickness(extraThickness);
-            line.addStartThickness(extraThickness * i);
-            if (realControlPosition.width() > controlLength) {
-                Rect lineBorder = new Rect(0, 0, realControlPosition.width(), realControlPosition.height() / linesCount);
-                Rect realLineRect = new Rect();
-                Gravity.apply(gravity, line.getLineLength(), line.getLineThickness(), lineBorder, realLineRect);
-                line.addLength(realLineRect.width() - line.getLineLength());
-                line.addStartLength(realLineRect.left);
-            }
+        LineDefinition lastLine = lines.get(linesCount - 1);
+        int excessThickness = realControlThickness - (lastLine.getLineThickness() + lastLine.getLineStartThickness());
+        int excessOffset = 0;
+        for (LineDefinition child : lines) {
+            int weight = 1;
+            int gravity = this.getGravity();
+            int extraThickness = Math.round(excessThickness * weight / totalWeight);
+
+            final int childLength = child.getLineLength();
+            final int childThickness = child.getLineThickness();
+
+            Rect container = new Rect();
+            container.top = excessOffset;
+            container.left = 0;
+            container.right = realControlLength;
+            container.bottom = childThickness + extraThickness + excessOffset;
+
+            Rect result = new Rect();
+            Gravity.apply(gravity, childLength, childThickness, container, result);
+
+            excessOffset += extraThickness;
+            child.addLineStartLength(result.left);
+            child.addLineStartThickness(result.top);
+            child.setLength(result.width());
+            child.setThickness(result.height());
         }
     }
 
     private void applyGravityToLine(LineDefinition line) {
-        int viewCount = line.getViews().size();
-        float totalWeight = 0;
+        final int viewCount = line.getViews().size();
         if (viewCount <= 0) {
             return;
         }
 
-        if (this.config.getWeightSum() > 0) {
-            totalWeight = this.config.getWeightSum();
-        } else {
-            for (ViewContainer prev : line.getViews()) {
-                LayoutParams plp = (LayoutParams) prev.getView().getLayoutParams();
-                float weight = this.getWeight(plp);
-                totalWeight += weight;
-            }
-        }
-
-        if (totalWeight <= 0) {
-            return;
+        float totalWeight = 0;
+        for (ViewContainer prev : line.getViews()) {
+            LayoutParams plp = (LayoutParams) prev.getView().getLayoutParams();
+            totalWeight += this.getWeight(plp);
         }
 
         ViewContainer lastChild = line.getViews().get(viewCount - 1);
@@ -226,7 +234,7 @@ public class FlowLayout extends ViewGroup {
             container.top = 0;
             container.left = excessOffset;
             container.right = childLength + extraLength + excessOffset;
-            container.bottom = line.getLineThicknessWithSpacing();
+            container.bottom = line.getLineThickness();
 
             Rect result = new Rect();
             Gravity.apply(gravity, childLength, childThickness, container, result);
@@ -378,15 +386,6 @@ public class FlowLayout extends ViewGroup {
     public void setDebugDraw(boolean debugDraw) {
         this.config.setDebugDraw(debugDraw);
         this.invalidate();
-    }
-
-    public float getWeightSum() {
-        return this.config.getWeightSum();
-    }
-
-    public void setWeightSum(float weightSum) {
-        this.config.setWeightSum(weightSum);
-        this.requestLayout();
     }
 
     public float getWeightDefault() {
