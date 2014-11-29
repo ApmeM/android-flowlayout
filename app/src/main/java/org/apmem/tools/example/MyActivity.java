@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 import org.apmem.tools.layouts.FlowLayout;
 
 public class MyActivity extends Activity {
@@ -18,9 +17,6 @@ public class MyActivity extends Activity {
         setContentView(R.layout.main);
 
         final FlowLayout layout = (FlowLayout) this.findViewById(R.id.flowLayout);
-
-        layout.setOrientation(FlowLayout.HORIZONTAL);
-        layout.setGravity(Gravity.FILL);
 
         final Button buttonOrientation = new Button(this);
         buttonOrientation.setLayoutParams(new FlowLayout.LayoutParams(100, 100));
@@ -65,5 +61,21 @@ public class MyActivity extends Activity {
             }
         });
         layout.addView(buttonGravity, 0);
+
+        final Button buttonLayoutDirection = new Button(this);
+        buttonLayoutDirection.setLayoutParams(new FlowLayout.LayoutParams(100, 100));
+        buttonLayoutDirection.setTextSize(8);
+        buttonLayoutDirection.setText("Switch LayoutDirection (Current: LTR)");
+        buttonLayoutDirection.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                layout.setLayoutDirection(1 - layout.getLayoutDirection());
+                buttonLayoutDirection.setText(layout.getLayoutDirection() == FlowLayout.LAYOUT_DIRECTION_LTR ?
+                        "Switch LayoutDirection (Current: LTR)" :
+                        "Switch LayoutDirection (Current: RTL)");
+            }
+
+        });
+        layout.addView(buttonLayoutDirection, 0);
     }
 }

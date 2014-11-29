@@ -16,14 +16,18 @@ class LineDefinition {
     private int lineStartThickness;
     private int lineStartLength;
 
-    public LineDefinition(int lineStartPosition, int maxLength, LayoutConfiguration config) {
-        this.lineStartThickness = lineStartPosition;
+    public LineDefinition(int maxLength, LayoutConfiguration config) {
+        this.lineStartThickness = 0;
         this.lineStartLength = 0;
         this.maxLength = maxLength;
         this.config = config;
     }
 
     public void addView(View child) {
+        this.addView(this.views.size(), child);
+    }
+
+    public void addView(int i, View child) {
         final FlowLayout.LayoutParams lp = (FlowLayout.LayoutParams) child.getLayoutParams();
         final int hSpacing = lp.horizontalSpacingSpecified() ? lp.horizontalSpacing : this.config.getHorizontalSpacing();
         final int vSpacing = lp.verticalSpacingSpecified() ? lp.verticalSpacing : this.config.getVerticalSpacing();
@@ -46,11 +50,10 @@ class LineDefinition {
         }
 
         final ViewContainer container = new ViewContainer(child, spacingLength, spacingThickness);
-        container.setInlineStartLength(this.lineLengthWithSpacing);
         container.setLength(childLength);
         container.setThickness(childThickness);
 
-        this.views.add(container);
+        this.views.add(i, container);
 
         this.lineLength = this.lineLengthWithSpacing + childLength;
         this.lineLengthWithSpacing = this.lineLength + spacingLength;

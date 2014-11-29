@@ -17,6 +17,8 @@ import java.util.List;
 public class FlowLayout extends ViewGroup {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
+    public static final int LAYOUT_DIRECTION_LTR = 0;
+    public static final int LAYOUT_DIRECTION_RTL = 1;
 
     private final LayoutConfiguration config;
     List<LineDefinition> lines = new ArrayList<LineDefinition>();
@@ -48,7 +50,7 @@ public class FlowLayout extends ViewGroup {
         final int modeThickness = this.config.getOrientation() == HORIZONTAL ? modeHeight : modeWidth;
 
         lines.clear();
-        LineDefinition currentLine = new LineDefinition(0, controlMaxLength, config);
+        LineDefinition currentLine = new LineDefinition(controlMaxLength, config);
         lines.add(currentLine);
 
         final int count = this.getChildCount();
@@ -67,12 +69,22 @@ public class FlowLayout extends ViewGroup {
 
             boolean newLine = lp.newLine || (modeLength != MeasureSpec.UNSPECIFIED && !currentLine.canFit(child));
             if (newLine) {
-                currentLine = new LineDefinition(currentLine.getLineStartThickness() + currentLine.getLineThicknessWithSpacing(), controlMaxLength, config);
-                lines.add(currentLine);
+                currentLine = new LineDefinition(controlMaxLength, config);
+                if (this.config.getOrientation() == VERTICAL && this.config.getLayoutDirection() == LAYOUT_DIRECTION_RTL) {
+                    lines.add(0, currentLine);
+                } else {
+                    lines.add(currentLine);
+                }
             }
 
-            currentLine.addView(child);
+            if (this.config.getOrientation() == HORIZONTAL && this.config.getLayoutDirection() == LAYOUT_DIRECTION_RTL) {
+                currentLine.addView(0, child);
+            }else{
+                currentLine.addView(child);
+            }
         }
+
+        this.calculateLinesAndChildsPosition(lines);
 
         int contentLength = 0;
         for (LineDefinition l : lines) {
@@ -115,6 +127,19 @@ public class FlowLayout extends ViewGroup {
             totalControlHeight += contentLength;
         }
         this.setMeasuredDimension(resolveSize(totalControlWidth, widthMeasureSpec), resolveSize(totalControlHeight, heightMeasureSpec));
+    }
+
+    private void calculateLinesAndChildsPosition(List<LineDefinition> lines) {
+        int prevLinesThickness = 0;
+        for(LineDefinition line : lines){
+            line.addStartThickness(prevLinesThickness);
+            prevLinesThickness += line.getLineThicknessWithSpacing();
+            int prevChildThickness = 0;
+            for (ViewContainer child : line.getViews()){
+                child.setInlineStartLength(prevChildThickness);
+                prevChildThickness += child.getLength() + child.getSpacingLength();
+            }
+        }
     }
 
     private void applyPositionsToViews(LineDefinition line) {
@@ -184,7 +209,7 @@ public class FlowLayout extends ViewGroup {
             return;
         }
 
-        ViewContainer lastChild = line.getViews().get(viewCount-1);
+        ViewContainer lastChild = line.getViews().get(viewCount - 1);
         int excessLength = line.getLineLength() - (lastChild.getLength() + lastChild.getInlineStartLength());
         int excessOffset = 0;
         for (ViewContainer child : line.getViews()) {
@@ -379,6 +404,15 @@ public class FlowLayout extends ViewGroup {
 
     public void setGravity(int gravity) {
         this.config.setGravity(gravity);
+        this.requestLayout();
+    }
+
+    public int getLayoutDirection() {
+        return this.config.getLayoutDirection();
+    }
+
+    public void setLayoutDirection(int layoutDirection) {
+        this.config.setLayoutDirection(layoutDirection);
         this.requestLayout();
     }
 

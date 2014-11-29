@@ -8,8 +8,13 @@ Extended linear layout that wrap its content when there is no place in the curre
 
 Horizontal:
 
-![](https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_portrait.png)
-![](https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_album.png)
+![](https://raw.githubusercontent.com/ApmeM/android-flowlayout/raw/master/img/horizontal_portrait.png)
+![](https://raw.githubusercontent.com/ApmeM/android-flowlayout/raw/master/img/horizontal_album.png)
+
+Horizontal rtl:
+
+![](https://raw.githubusercontent.com/ApmeM/android-flowlayout/master/img/horizontal_portrait_rtl.png)
+![](https://raw.githubusercontent.com/ApmeM/android-flowlayout/master/img/horizontal_landscape_rtl.png)
 
 Vertical:
 
@@ -56,6 +61,15 @@ To change default direction use the following code
 
 	f:orientation="vertical"
 
+To change layout direction use the following code
+
+	f:layoutDirection="rtl"
+	
+Android gravity now supported (in combination with elements weight):
+
+        f:weightDefault="1.0"
+        android:gravity="fill"
+
 To override default spacing use the following LayoutParameter in the child View element:
 
 	f:layout_horizontalSpacing="32dip"
@@ -81,6 +95,18 @@ Layout parameters:
 
 		* vertical - line will be in vertical direction, linebreak will create new column
 
+        * android:gravity - standart android gravity supported
+
+        * weightDefault - default weight value for child elements. Used to fill line in case of Gravity.FILL_HORIZONTAL | Gravity.FILL_VERTICAL
+
+        * weightSum - total weight of all elements (used to calculate weight of a specified element)
+
+        * layoutDirection - direction of inner child elements:
+
+                *  ltr - left to right direction
+
+                *  rtl - right to left direction
+
 Child layout parameters:
 
 	* layout_horizontalSpacing - override default horizontal spacing
@@ -88,6 +114,10 @@ Child layout parameters:
 	* layout_verticalSpacing - override default vertical spacing
 
 	* layout_newLine - brake line before current element even if there is enough place in the current line.
+
+	* android:layout_gravity - standart aandroid gravity supported
+
+        * layout_weight - weight of the element. If not specified "layout.defaultWight" is used.
 
 ## Copyrights
 

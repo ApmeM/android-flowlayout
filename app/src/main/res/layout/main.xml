@@ -12,7 +12,8 @@
             f:verticalSpacing="6dip"
             f:debugDraw="true"
             f:weightDefault="1.0"
-            android:gravity="center_vertical|fill_horizontal"
+            f:layoutDirection="ltr"
+            android:gravity="fill"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:paddingLeft="6dip"
@@ -79,7 +80,7 @@
                 android:layout_height="wrap_content"
                 android:text="@string/button_test"/>
         <TextView
-                f:layout_weight="10.0"
+                f:layout_weight="1000.0"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"/>
     </org.apmem.tools.layouts.FlowLayout>
