@@ -6,24 +6,25 @@ Extended linear layout that wrap its content when there is no place in the curre
 
 ## Demonstration
 
-Horizontal:
+Orientation: HORIZONTAL, Gravity: FILL, LayoutDirection: LTR
 
-![](https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_portrait.png)
-![](https://github.com/ApmeM/android-flowlayout/raw/master/img/horizontal_album.png)
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/LANDSCAPE_LTR_FILL_HORIZONTAL_DEBUG.png)
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/PORTRAIT_LTR_FILL_HORIZONTAL_DEBUG.png)
 
-Horizontal rtl:
+Orientation: HORIZONTAL, Gravity: RIGHT & BOTTOM, LayoutDirection: RTL
 
-![](https://github.com/ApmeM/android-flowlayout/master/img/horizontal_portrait_rtl.png)
-![](https://github.com/ApmeM/android-flowlayout/master/img/horizontal_landscape_rtl.png)
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/LANDSCAPE_RTL_RIGHTBOTTOM_HORIZONTAL_DEBUG.png)
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/PORTRAIT_RTL_RIGHTBOTTOM_HORIZONTAL_DEBUG.png)
 
-Vertical:
+Orientation: VERTICAL, Gravity: CENTER, LayoutDirection: LTR
 
-![](https://github.com/ApmeM/android-flowlayout/raw/master/img/vertical_portrait.png)
-![](https://github.com/ApmeM/android-flowlayout/raw/master/img/vertical_album.png)
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/LANDSCAPE_LTR_CENTER_VERTICAL_DEBUG.png)
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/PORTRAIT_LTR_CENTER_VERTICAL_DEBUG.png)
 
 Debug is switched off:
 
-![](https://github.com/ApmeM/android-flowlayout/raw/master/img/no_debug.png)
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/LANDSCAPE_LTR_FILL_HORIZONTAL_NODEBUG.png)
+![](https://github.com/ApmeM/android-flowlayout/raw/master/img/PORTRAIT_LTR_FILL_HORIZONTAL_NODEBUG.png)
 
 ## Installation and usage
 
