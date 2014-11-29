@@ -77,5 +77,21 @@ public class MyActivity extends Activity {
 
         });
         layout.addView(buttonLayoutDirection, 0);
+
+        final Button buttonDebug = new Button(this);
+        buttonDebug.setLayoutParams(new FlowLayout.LayoutParams(100, 100));
+        buttonDebug.setTextSize(8);
+        buttonDebug.setText("Switch Debug (Current: true)");
+        buttonDebug.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                layout.setDebugDraw(!layout.isDebugDraw());
+                buttonDebug.setText(layout.isDebugDraw() ?
+                        "Switch LayoutDirection (Current: true)" :
+                        "Switch LayoutDirection (Current: false)");
+            }
+
+        });
+        layout.addView(buttonDebug, 0);
     }
 }
