@@ -6,17 +6,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 class LineDefinition {
-    private final List<View> views = new ArrayList<View>();
+    private final List<ViewContainer> views = new ArrayList<ViewContainer>();
     private final LayoutConfiguration config;
+    private final int maxLength;
     private int lineLength;
     private int lineThickness;
     private int lineLengthWithSpacing;
     private int lineThicknessWithSpacing;
-    private int linePosition;
-    private final int maxLength;
+    private int lineStartThickness;
+    private int lineStartLength;
 
-    public LineDefinition(int linePosition, int maxLength, LayoutConfiguration config) {
-        this.linePosition = linePosition;
+    public LineDefinition(int lineStartPosition, int maxLength, LayoutConfiguration config) {
+        this.lineStartThickness = lineStartPosition;
+        this.lineStartLength = 0;
         this.maxLength = maxLength;
         this.config = config;
     }
@@ -30,6 +32,7 @@ class LineDefinition {
         final int childThickness;
         final int spacingLength;
         final int spacingThickness;
+
         if (this.config.getOrientation() == FlowLayout.HORIZONTAL) {
             childLength = child.getMeasuredWidth();
             childThickness = child.getMeasuredHeight();
@@ -42,7 +45,12 @@ class LineDefinition {
             spacingThickness = hSpacing;
         }
 
-        this.views.add(child);
+        final ViewContainer container = new ViewContainer(child, spacingLength, spacingThickness);
+        container.setInlineStartLength(this.lineLengthWithSpacing);
+        container.setLength(childLength);
+        container.setThickness(childThickness);
+
+        this.views.add(container);
 
         this.lineLength = this.lineLengthWithSpacing + childLength;
         this.lineLengthWithSpacing = this.lineLength + spacingLength;
@@ -60,8 +68,8 @@ class LineDefinition {
         return lineLengthWithSpacing + childLength <= maxLength;
     }
 
-    public int getLinePosition() {
-        return linePosition;
+    public int getLineStartThickness() {
+        return lineStartThickness;
     }
 
     public int getLineThicknessWithSpacing() {
@@ -76,11 +84,33 @@ class LineDefinition {
         return lineLength;
     }
 
+    public int getLineStartLength() {
+        return lineStartLength;
+    }
+
     public int getLineThickness() {
         return lineThickness;
     }
 
-    public List<View> getViews() {
+    public List<ViewContainer> getViews() {
         return views;
+    }
+
+    public void addThickness(int extraThickness) {
+        this.lineThickness += extraThickness;
+        this.lineThicknessWithSpacing += extraThickness;
+    }
+
+    public void addStartThickness(int extraLineStartThickness) {
+        this.lineStartThickness += extraLineStartThickness;
+    }
+
+    public void addLength(int extraLength) {
+        this.lineLength += extraLength;
+        this.lineLengthWithSpacing += extraLength;
+    }
+
+    public void addStartLength(int extraLineStartLength) {
+        this.lineStartLength += extraLineStartLength;
     }
 }

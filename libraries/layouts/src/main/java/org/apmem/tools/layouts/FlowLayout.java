@@ -46,12 +46,14 @@ public class FlowLayout extends ViewGroup {
         final int sizeHeight = MeasureSpec.getSize(heightMeasureSpec) - this.getPaddingTop() - this.getPaddingBottom();
         final int modeWidth = MeasureSpec.getMode(widthMeasureSpec);
         final int modeHeight = MeasureSpec.getMode(heightMeasureSpec);
-        final int size = this.config.getOrientation() == HORIZONTAL ? sizeWidth : sizeHeight;
-        final int mode = this.config.getOrientation() == HORIZONTAL ? modeWidth : modeHeight;
+        final int controlMaxLength = this.config.getOrientation() == HORIZONTAL ? sizeWidth : sizeHeight;
+        final int controlMaxThickness = this.config.getOrientation() == HORIZONTAL ? sizeHeight : sizeWidth;
+        final int modeLength = this.config.getOrientation() == HORIZONTAL ? modeWidth : modeHeight;
+        final int modeThickness = this.config.getOrientation() == HORIZONTAL ? modeHeight : modeWidth;
 
         lines.clear();
-        LineDefinition line = new LineDefinition(0, size, config);
-        lines.add(line);
+        LineDefinition currentLine = new LineDefinition(0, controlMaxLength, config);
+        lines.add(currentLine);
 
         final int count = this.getChildCount();
         for (int i = 0; i < count; i++) {
@@ -67,64 +69,123 @@ public class FlowLayout extends ViewGroup {
                     getChildMeasureSpec(heightMeasureSpec, this.getPaddingTop() + this.getPaddingBottom(), lp.height)
             );
 
-            boolean newLine = lp.newLine || (mode != MeasureSpec.UNSPECIFIED && !line.canFit(child));
+            boolean newLine = lp.newLine || (modeLength != MeasureSpec.UNSPECIFIED && !currentLine.canFit(child));
             if (newLine) {
-                line = new LineDefinition(line.getLinePosition() + line.getLineThicknessWithSpacing(), size, config);
-                lines.add(line);
+                currentLine = new LineDefinition(currentLine.getLineStartThickness() + currentLine.getLineThicknessWithSpacing(), controlMaxLength, config);
+                lines.add(currentLine);
             }
 
-            int posX = this.config.getOrientation() == HORIZONTAL ? this.getPaddingLeft() + line.getLineLengthWithSpacing() : this.getPaddingLeft() + line.getLinePosition();
-            int posY = this.config.getOrientation() == HORIZONTAL ? this.getPaddingTop() + line.getLinePosition() : this.getPaddingTop() + line.getLineLengthWithSpacing();
-            lp.setPosition(posX, posY);
-
-            line.addView(child);
+            currentLine.addView(child);
         }
 
-        if (this.config.getFillLines() != FILL_LINES_NONE) {
-            int linesSize = lines.size();
-            for (int i = 0; i < linesSize; i++) {
-                if (i == linesSize - 1 && this.config.getFillLines() == FILL_LINES_EXCEPT_LAST) {
-                    continue;
-                }
-
-                this.fillLine(size, lines.get(i));
-            }
-        }
-
-        int controlMaxLength = 0;
+        int contentLength = 0;
         for (LineDefinition l : lines) {
-            controlMaxLength = Math.max(controlMaxLength, l.getLineLength());
+            contentLength = Math.max(contentLength, l.getLineLength());
         }
-        int controlMaxThickness = line.getLinePosition() + line.getLineThickness();
+        int contentThickness = currentLine.getLineStartThickness() + currentLine.getLineThickness();
+
+        Rect controlBorder = new Rect();
+        switch (modeLength) {
+            case MeasureSpec.UNSPECIFIED:
+                controlBorder.right = contentLength;
+                controlBorder.bottom = contentThickness;
+                break;
+            case MeasureSpec.AT_MOST:
+                controlBorder.right = Math.min(contentLength, controlMaxLength);
+                controlBorder.bottom = Math.min(contentThickness, controlMaxThickness);
+                break;
+            case MeasureSpec.EXACTLY:
+                controlBorder.right = controlMaxLength;
+// With this line control will be exactly this size (an all child elements will be narrower in case of lack of thickness)
+//                controlBorder.bottom = controlMaxThickness;
+                controlBorder.bottom = Math.max(contentThickness, controlMaxThickness);
+        }
+
+        this.applyGravityToLines(lines, controlBorder, contentLength, contentThickness);
+
+//        int linesSize = lines.size();
+//        for (int i = 0; i < linesSize; i++) {
+////            Right now gravity should be applied to all lines
+//            if (i == linesSize - 1 && this.config.getFillLines() == FILL_LINES_EXCEPT_LAST) {
+//                continue;
+//            }
+//        }
+        for (LineDefinition line : lines) {
+            this.applyGravityToLine(line);
+            this.applyPositionsToViews(line);
+        }
 
         /* need to take padding into account */
+        int totalControlWidth = this.getPaddingLeft() + this.getPaddingRight();
+        int totalControlHeight = this.getPaddingBottom() + this.getPaddingTop();
         if (this.config.getOrientation() == HORIZONTAL) {
-            controlMaxLength += this.getPaddingLeft() + this.getPaddingRight();
-            controlMaxThickness += this.getPaddingBottom() + this.getPaddingTop();
+            totalControlWidth += contentLength;
+            totalControlHeight += contentThickness;
         } else {
-            controlMaxLength += this.getPaddingBottom() + this.getPaddingTop();
-            controlMaxThickness += this.getPaddingLeft() + this.getPaddingRight();
+            totalControlWidth += contentThickness;
+            totalControlHeight += contentLength;
         }
+        this.setMeasuredDimension(resolveSize(totalControlWidth, widthMeasureSpec), resolveSize(totalControlHeight, heightMeasureSpec));
+    }
 
-        if (this.config.getOrientation() == HORIZONTAL) {
-            this.setMeasuredDimension(resolveSize(controlMaxLength, widthMeasureSpec), resolveSize(controlMaxThickness, heightMeasureSpec));
-        } else {
-            this.setMeasuredDimension(resolveSize(controlMaxThickness, widthMeasureSpec), resolveSize(controlMaxLength, heightMeasureSpec));
+    private void applyPositionsToViews(LineDefinition line) {
+        for (ViewContainer child : line.getViews()) {
+            if (this.config.getOrientation() == HORIZONTAL) {
+                ((LayoutParams) child.getView().getLayoutParams()).setPosition(
+                        this.getPaddingLeft() + child.getInlineStartLength(),
+                        this.getPaddingTop() + line.getLineStartThickness() + child.getInlineStartThickness());
+                child.getView().measure(
+                        MeasureSpec.makeMeasureSpec(child.getLength(), MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(child.getThickness(), MeasureSpec.EXACTLY)
+                );
+            } else {
+                ((LayoutParams) child.getView().getLayoutParams()).setPosition(
+                        this.getPaddingLeft() + line.getLineStartThickness() + child.getInlineStartThickness(),
+                        this.getPaddingTop() + child.getInlineStartLength());
+                child.getView().measure(
+                        MeasureSpec.makeMeasureSpec(child.getThickness(), MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(child.getLength(), MeasureSpec.EXACTLY)
+                );
+            }
         }
     }
 
-    private void fillLine(int size, LineDefinition line) {
-        int lineCount = line.getViews().size();
+    private void applyGravityToLines(List<LineDefinition> lines, Rect controlBorder, int controlLength, int controlThickness) {
+        final int linesCount = lines.size();
+        final int totalWeight = linesCount;
+        final int gravity = this.getGravity();
+        Rect realControlPosition = new Rect();
+        Gravity.apply(gravity, controlLength, controlThickness, controlBorder, realControlPosition);
+        // Weight of all lines are same as it is impossible to configure line by line.
+        final int weight = 1;
+        int excessThickness = realControlPosition.height() - controlThickness;
+        final int extraThickness = Math.round(excessThickness * weight / totalWeight);
+        for (int i = 0; i < linesCount; i++) {
+            LineDefinition line = lines.get(i);
+            line.addThickness(extraThickness);
+            line.addStartThickness(extraThickness * i);
+            if (realControlPosition.width() > controlLength) {
+                Rect lineBorder = new Rect(0, 0, realControlPosition.width(), realControlPosition.height() / linesCount);
+                Rect realLineRect = new Rect();
+                Gravity.apply(gravity, line.getLineLength(), line.getLineThickness(), lineBorder, realLineRect);
+                line.addLength(realLineRect.width() - line.getLineLength());
+                line.addStartLength(realLineRect.left);
+            }
+        }
+    }
+
+    private void applyGravityToLine(LineDefinition line) {
+        int viewCount = line.getViews().size();
         float totalWeight = 0;
-        if (lineCount <= 0) {
+        if (viewCount <= 0) {
             return;
         }
 
         if (this.config.getWeightSum() > 0) {
             totalWeight = this.config.getWeightSum();
         } else {
-            for (View prev : line.getViews()) {
-                LayoutParams plp = (LayoutParams) prev.getLayoutParams();
+            for (ViewContainer prev : line.getViews()) {
+                LayoutParams plp = (LayoutParams) prev.getView().getLayoutParams();
                 float weight = this.getWeight(plp);
                 totalWeight += weight;
             }
@@ -134,38 +195,33 @@ public class FlowLayout extends ViewGroup {
             return;
         }
 
-        int excessLength = size - line.getLineLength();
+        ViewContainer lastChild = line.getViews().get(viewCount-1);
+        int excessLength = line.getLineLength() - (lastChild.getLength() + lastChild.getInlineStartLength());
         int excessOffset = 0;
-        for (View child : line.getViews()) {
-            LayoutParams plp = (LayoutParams) child.getLayoutParams();
+        for (ViewContainer child : line.getViews()) {
+            LayoutParams plp = (LayoutParams) child.getView().getLayoutParams();
 
             float weight = this.getWeight(plp);
             int gravity = this.getGravity(plp);
             int extraLength = Math.round(excessLength * weight / totalWeight);
 
-            final int childWidth = child.getMeasuredWidth();
-            final int childHeight = child.getMeasuredHeight();
+            final int childLength = child.getLength() + child.getSpacingLength();
+            final int childThickness = child.getThickness() + child.getSpacingThickness();
 
             Rect container = new Rect();
-            if (this.config.getOrientation() == HORIZONTAL) {
-                container.left = excessOffset;
-                container.right = childWidth + extraLength + excessOffset;
-                container.bottom = line.getLineThickness();
-            } else {
-                container.top = excessOffset;
-                container.right = line.getLineThickness();
-                container.bottom = childHeight + extraLength + excessOffset;
-            }
+            container.top = 0;
+            container.left = excessOffset;
+            container.right = childLength + extraLength + excessOffset;
+            container.bottom = line.getLineThicknessWithSpacing();
 
             Rect result = new Rect();
-            Gravity.apply(gravity, childWidth, childHeight, container, result);
+            Gravity.apply(gravity, childLength, childThickness, container, result);
 
-            plp.setPosition(plp.x + result.left, plp.y + result.top);
             excessOffset += extraLength;
-            child.measure(
-                    MeasureSpec.makeMeasureSpec(result.width(), MeasureSpec.EXACTLY),
-                    MeasureSpec.makeMeasureSpec(result.height(), MeasureSpec.EXACTLY)
-            );
+            child.addInlinePosition(result.left);
+            child.addInlineStartThickness(result.top);
+            child.setLength(result.width() - child.getSpacingLength());
+            child.setThickness(result.height() - child.getSpacingThickness());
         }
     }
 
