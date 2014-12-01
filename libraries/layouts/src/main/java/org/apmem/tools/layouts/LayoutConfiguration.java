@@ -6,8 +6,6 @@ import android.util.AttributeSet;
 import android.view.Gravity;
 
 class LayoutConfiguration {
-    private int horizontalSpacing = 0;
-    private int verticalSpacing = 0;
     private int orientation = FlowLayout.HORIZONTAL;
     private boolean debugDraw = false;
     private float weightDefault = 0;
@@ -17,8 +15,6 @@ class LayoutConfiguration {
     public LayoutConfiguration(Context context, AttributeSet attributeSet) {
         TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
         try {
-            this.setHorizontalSpacing(a.getDimensionPixelSize(R.styleable.FlowLayout_horizontalSpacing, 0));
-            this.setVerticalSpacing(a.getDimensionPixelSize(R.styleable.FlowLayout_verticalSpacing, 0));
             this.setOrientation(a.getInteger(R.styleable.FlowLayout_orientation, FlowLayout.HORIZONTAL));
             this.setDebugDraw(a.getBoolean(R.styleable.FlowLayout_debugDraw, false));
             this.setWeightDefault(a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f));
@@ -27,22 +23,6 @@ class LayoutConfiguration {
         } finally {
             a.recycle();
         }
-    }
-
-    public int getHorizontalSpacing() {
-        return this.horizontalSpacing;
-    }
-
-    public void setHorizontalSpacing(int horizontalSpacing) {
-        this.horizontalSpacing = Math.max(0, horizontalSpacing);
-    }
-
-    public int getVerticalSpacing() {
-        return this.verticalSpacing;
-    }
-
-    public void setVerticalSpacing(int verticalSpacing) {
-        this.verticalSpacing = Math.max(0, verticalSpacing);
     }
 
     public int getOrientation() {

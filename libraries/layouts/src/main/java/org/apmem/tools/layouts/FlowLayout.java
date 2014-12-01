@@ -264,7 +264,8 @@ public class FlowLayout extends ViewGroup {
         for (int i = 0; i < count; i++) {
             View child = this.getChildAt(i);
             LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            child.layout(lp.x, lp.y, lp.x + child.getMeasuredWidth(), lp.y + child.getMeasuredHeight());
+            child.layout(lp.x + lp.leftMargin, lp.y + lp.topMargin,
+                    lp.x + lp.leftMargin + child.getMeasuredWidth(), lp.y + lp.topMargin + child.getMeasuredHeight());
         }
     }
 
@@ -301,37 +302,40 @@ public class FlowLayout extends ViewGroup {
         }
 
         Paint childPaint = this.createPaint(0xffffff00);
-        Paint layoutPaint = this.createPaint(0xff00ff00);
         Paint newLinePaint = this.createPaint(0xffff0000);
 
         LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
-        if (lp.horizontalSpacing > 0) {
+        if (lp.rightMargin > 0) {
             float x = child.getRight();
             float y = child.getTop() + child.getHeight() / 2.0f;
-            canvas.drawLine(x, y, x + lp.horizontalSpacing, y, childPaint);
-            canvas.drawLine(x + lp.horizontalSpacing - 4.0f, y - 4.0f, x + lp.horizontalSpacing, y, childPaint);
-            canvas.drawLine(x + lp.horizontalSpacing - 4.0f, y + 4.0f, x + lp.horizontalSpacing, y, childPaint);
-        } else if (this.config.getHorizontalSpacing() > 0) {
-            float x = child.getRight();
-            float y = child.getTop() + child.getHeight() / 2.0f;
-            canvas.drawLine(x, y, x + this.config.getHorizontalSpacing(), y, layoutPaint);
-            canvas.drawLine(x + this.config.getHorizontalSpacing() - 4.0f, y - 4.0f, x + this.config.getHorizontalSpacing(), y, layoutPaint);
-            canvas.drawLine(x + this.config.getHorizontalSpacing() - 4.0f, y + 4.0f, x + this.config.getHorizontalSpacing(), y, layoutPaint);
+            canvas.drawLine(x, y, x + lp.rightMargin, y, childPaint);
+            canvas.drawLine(x + lp.rightMargin - 4.0f, y - 4.0f, x + lp.rightMargin, y, childPaint);
+            canvas.drawLine(x + lp.rightMargin - 4.0f, y + 4.0f, x + lp.rightMargin, y, childPaint);
         }
 
-        if (lp.verticalSpacing > 0) {
+        if (lp.leftMargin > 0) {
+            float x = child.getLeft();
+            float y = child.getTop() + child.getHeight() / 2.0f;
+            canvas.drawLine(x, y, x - lp.leftMargin, y, childPaint);
+            canvas.drawLine(x - lp.leftMargin + 4.0f, y - 4.0f, x - lp.leftMargin, y, childPaint);
+            canvas.drawLine(x - lp.leftMargin + 4.0f, y + 4.0f, x - lp.leftMargin, y, childPaint);
+        }
+
+        if (lp.bottomMargin > 0) {
             float x = child.getLeft() + child.getWidth() / 2.0f;
             float y = child.getBottom();
-            canvas.drawLine(x, y, x, y + lp.verticalSpacing, childPaint);
-            canvas.drawLine(x - 4.0f, y + lp.verticalSpacing - 4.0f, x, y + lp.verticalSpacing, childPaint);
-            canvas.drawLine(x + 4.0f, y + lp.verticalSpacing - 4.0f, x, y + lp.verticalSpacing, childPaint);
-        } else if (this.config.getVerticalSpacing() > 0) {
+            canvas.drawLine(x, y, x, y + lp.bottomMargin, childPaint);
+            canvas.drawLine(x - 4.0f, y + lp.bottomMargin - 4.0f, x, y + lp.bottomMargin, childPaint);
+            canvas.drawLine(x + 4.0f, y + lp.bottomMargin - 4.0f, x, y + lp.bottomMargin, childPaint);
+        }
+
+        if (lp.topMargin > 0) {
             float x = child.getLeft() + child.getWidth() / 2.0f;
-            float y = child.getBottom();
-            canvas.drawLine(x, y, x, y + this.config.getVerticalSpacing(), layoutPaint);
-            canvas.drawLine(x - 4.0f, y + this.config.getVerticalSpacing() - 4.0f, x, y + this.config.getVerticalSpacing(), layoutPaint);
-            canvas.drawLine(x + 4.0f, y + this.config.getVerticalSpacing() - 4.0f, x, y + this.config.getVerticalSpacing(), layoutPaint);
+            float y = child.getTop();
+            canvas.drawLine(x, y, x, y - lp.topMargin, childPaint);
+            canvas.drawLine(x - 4.0f, y - lp.topMargin + 4.0f, x, y - lp.topMargin, childPaint);
+            canvas.drawLine(x + 4.0f, y - lp.topMargin + 4.0f, x, y - lp.topMargin, childPaint);
         }
 
         if (lp.newLine) {
@@ -353,24 +357,6 @@ public class FlowLayout extends ViewGroup {
         paint.setColor(color);
         paint.setStrokeWidth(2.0f);
         return paint;
-    }
-
-    public int getHorizontalSpacing() {
-        return this.config.getHorizontalSpacing();
-    }
-
-    public void setHorizontalSpacing(int horizontalSpacing) {
-        this.config.setHorizontalSpacing(horizontalSpacing);
-        this.requestLayout();
-    }
-
-    public int getVerticalSpacing() {
-        return this.config.getVerticalSpacing();
-    }
-
-    public void setVerticalSpacing(int verticalSpacing) {
-        this.config.setVerticalSpacing(verticalSpacing);
-        this.requestLayout();
     }
 
     public int getOrientation() {
@@ -418,12 +404,7 @@ public class FlowLayout extends ViewGroup {
         this.requestLayout();
     }
 
-    public static class LayoutParams extends ViewGroup.LayoutParams {
-        private static final int NO_SPACING = -1;
-        @android.view.ViewDebug.ExportedProperty(category = "layout", mapping = {@android.view.ViewDebug.IntToString(from = NO_SPACING, to = "NO_SPACING")})
-        public int horizontalSpacing = NO_SPACING;
-        @android.view.ViewDebug.ExportedProperty(category = "layout", mapping = {@android.view.ViewDebug.IntToString(from = NO_SPACING, to = "NO_SPACING")})
-        public int verticalSpacing = NO_SPACING;
+    public static class LayoutParams extends MarginLayoutParams {
         public boolean newLine = false;
         @ViewDebug.ExportedProperty(mapping = {
                 @ViewDebug.IntToString(from = Gravity.NO_GRAVITY, to = "NONE"),
@@ -463,14 +444,6 @@ public class FlowLayout extends ViewGroup {
             super(layoutParams);
         }
 
-        public boolean horizontalSpacingSpecified() {
-            return this.horizontalSpacing != NO_SPACING;
-        }
-
-        public boolean verticalSpacingSpecified() {
-            return this.verticalSpacing != NO_SPACING;
-        }
-
         public boolean gravitySpecified() {
             return this.gravity != Gravity.NO_GRAVITY;
         }
@@ -482,8 +455,6 @@ public class FlowLayout extends ViewGroup {
         private void readStyleParameters(Context context, AttributeSet attributeSet) {
             TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout_LayoutParams);
             try {
-                this.horizontalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_horizontalSpacing, NO_SPACING);
-                this.verticalSpacing = a.getDimensionPixelSize(R.styleable.FlowLayout_LayoutParams_layout_verticalSpacing, NO_SPACING);
                 this.newLine = a.getBoolean(R.styleable.FlowLayout_LayoutParams_layout_newLine, false);
                 this.gravity = a.getInt(R.styleable.FlowLayout_LayoutParams_android_layout_gravity, Gravity.NO_GRAVITY);
                 this.weight = a.getFloat(R.styleable.FlowLayout_LayoutParams_layout_weight, -1.0f);

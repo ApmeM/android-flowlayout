@@ -29,8 +29,8 @@ class LineDefinition {
 
     public void addView(int i, View child) {
         final FlowLayout.LayoutParams lp = (FlowLayout.LayoutParams) child.getLayoutParams();
-        final int hSpacing = lp.horizontalSpacingSpecified() ? lp.horizontalSpacing : this.config.getHorizontalSpacing();
-        final int vSpacing = lp.verticalSpacingSpecified() ? lp.verticalSpacing : this.config.getVerticalSpacing();
+        final int hSpacing = lp.leftMargin + lp.rightMargin;
+        final int vSpacing = lp.topMargin + lp.bottomMargin;
 
         final int childLength;
         final int childThickness;
