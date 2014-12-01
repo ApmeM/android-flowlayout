@@ -66,7 +66,7 @@ public class FlowLayout extends ViewGroup {
                     getChildMeasureSpec(widthMeasureSpec, this.getPaddingLeft() + this.getPaddingRight(), lp.width),
                     getChildMeasureSpec(heightMeasureSpec, this.getPaddingTop() + this.getPaddingBottom(), lp.height)
             );
-
+            lp.clearCalculatedFields();
             boolean newLine = lp.newLine || (modeLength != MeasureSpec.UNSPECIFIED && !currentLine.canFit(child));
             if (newLine) {
                 currentLine = new LineDefinition(controlMaxLength, config);
@@ -84,7 +84,7 @@ public class FlowLayout extends ViewGroup {
             }
         }
 
-        this.calculateLinesAndChildsPosition(lines);
+        this.calculateLinesAndChildPosition(lines);
 
         int contentLength = 0;
         for (LineDefinition l : lines) {
@@ -135,36 +135,38 @@ public class FlowLayout extends ViewGroup {
         this.setMeasuredDimension(resolveSize(totalControlWidth, widthMeasureSpec), resolveSize(totalControlHeight, heightMeasureSpec));
     }
 
-    private void calculateLinesAndChildsPosition(List<LineDefinition> lines) {
+    private void calculateLinesAndChildPosition(List<LineDefinition> lines) {
         int prevLinesThickness = 0;
         for (LineDefinition line : lines) {
             line.addLineStartThickness(prevLinesThickness);
             prevLinesThickness += line.getLineThickness();
             int prevChildThickness = 0;
-            for (ViewContainer child : line.getViews()) {
-                child.setInlineStartLength(prevChildThickness);
-                prevChildThickness += child.getLength() + child.getSpacingLength();
+            for (View child : line.getViews()) {
+                LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
+                layoutParams.setInlineStartLength(prevChildThickness);
+                prevChildThickness += layoutParams.getLength() + layoutParams.getSpacingLength();
             }
         }
     }
 
     private void applyPositionsToViews(LineDefinition line) {
-        for (ViewContainer child : line.getViews()) {
+        for (View child : line.getViews()) {
+            LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
             if (this.config.getOrientation() == HORIZONTAL) {
-                ((LayoutParams) child.getView().getLayoutParams()).setPosition(
-                        this.getPaddingLeft() + line.getLineStartLength() + child.getInlineStartLength(),
-                        this.getPaddingTop() + line.getLineStartThickness() + child.getInlineStartThickness());
-                child.getView().measure(
-                        MeasureSpec.makeMeasureSpec(child.getLength(), MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(child.getThickness(), MeasureSpec.EXACTLY)
+                layoutParams.setPosition(
+                        this.getPaddingLeft() + line.getLineStartLength() + layoutParams.getInlineStartLength(),
+                        this.getPaddingTop() + line.getLineStartThickness() + layoutParams.getInlineStartThickness());
+                child.measure(
+                        MeasureSpec.makeMeasureSpec(layoutParams.getLength(), MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(layoutParams.getThickness(), MeasureSpec.EXACTLY)
                 );
             } else {
-                ((LayoutParams) child.getView().getLayoutParams()).setPosition(
-                        this.getPaddingLeft() + line.getLineStartThickness() + child.getInlineStartThickness(),
-                        this.getPaddingTop() + line.getLineStartLength() + child.getInlineStartLength());
-                child.getView().measure(
-                        MeasureSpec.makeMeasureSpec(child.getThickness(), MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(child.getLength(), MeasureSpec.EXACTLY)
+                layoutParams.setPosition(
+                        this.getPaddingLeft() + line.getLineStartThickness() + layoutParams.getInlineStartThickness(),
+                        this.getPaddingTop() + line.getLineStartLength() + layoutParams.getInlineStartLength());
+                child.measure(
+                        MeasureSpec.makeMeasureSpec(layoutParams.getThickness(), MeasureSpec.EXACTLY),
+                        MeasureSpec.makeMeasureSpec(layoutParams.getLength(), MeasureSpec.EXACTLY)
                 );
             }
         }
@@ -212,23 +214,24 @@ public class FlowLayout extends ViewGroup {
         }
 
         float totalWeight = 0;
-        for (ViewContainer prev : line.getViews()) {
-            LayoutParams plp = (LayoutParams) prev.getView().getLayoutParams();
+        for (View prev : line.getViews()) {
+            LayoutParams plp = (LayoutParams) prev.getLayoutParams();
             totalWeight += this.getWeight(plp);
         }
 
-        ViewContainer lastChild = line.getViews().get(viewCount - 1);
-        int excessLength = line.getLineLength() - (lastChild.getLength() + lastChild.getInlineStartLength());
+        View lastChild = line.getViews().get(viewCount - 1);
+        LayoutParams lastChildLayoutParams = (LayoutParams) lastChild.getLayoutParams();
+        int excessLength = line.getLineLength() - (lastChildLayoutParams.getLength() + lastChildLayoutParams.getInlineStartLength());
         int excessOffset = 0;
-        for (ViewContainer child : line.getViews()) {
-            LayoutParams plp = (LayoutParams) child.getView().getLayoutParams();
+        for (View child : line.getViews()) {
+            LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
 
-            float weight = this.getWeight(plp);
-            int gravity = this.getGravity(plp);
+            float weight = this.getWeight(layoutParams);
+            int gravity = this.getGravity(layoutParams);
             int extraLength = Math.round(excessLength * weight / totalWeight);
 
-            final int childLength = child.getLength() + child.getSpacingLength();
-            final int childThickness = child.getThickness() + child.getSpacingThickness();
+            final int childLength = layoutParams.getLength() + layoutParams.getSpacingLength();
+            final int childThickness = layoutParams.getThickness() + layoutParams.getSpacingThickness();
 
             Rect container = new Rect();
             container.top = 0;
@@ -240,10 +243,10 @@ public class FlowLayout extends ViewGroup {
             Gravity.apply(gravity, childLength, childThickness, container, result);
 
             excessOffset += extraLength;
-            child.addInlinePosition(result.left);
-            child.addInlineStartThickness(result.top);
-            child.setLength(result.width() - child.getSpacingLength());
-            child.setThickness(result.height() - child.getSpacingThickness());
+            layoutParams.setInlineStartLength(result.left + layoutParams.getInlineStartLength());
+            layoutParams.setInlineStartThickness(result.top);
+            layoutParams.setLength(result.width() - layoutParams.getSpacingLength());
+            layoutParams.setThickness(result.height() - layoutParams.getSpacingThickness());
         }
     }
 
@@ -417,10 +420,6 @@ public class FlowLayout extends ViewGroup {
 
     public static class LayoutParams extends ViewGroup.LayoutParams {
         private static final int NO_SPACING = -1;
-        @android.view.ViewDebug.ExportedProperty(category = "layout")
-        public int x;
-        @android.view.ViewDebug.ExportedProperty(category = "layout")
-        public int y;
         @android.view.ViewDebug.ExportedProperty(category = "layout", mapping = {@android.view.ViewDebug.IntToString(from = NO_SPACING, to = "NO_SPACING")})
         public int horizontalSpacing = NO_SPACING;
         @android.view.ViewDebug.ExportedProperty(category = "layout", mapping = {@android.view.ViewDebug.IntToString(from = NO_SPACING, to = "NO_SPACING")})
@@ -441,6 +440,15 @@ public class FlowLayout extends ViewGroup {
         })
         public int gravity = Gravity.NO_GRAVITY;
         public float weight = -1.0f;
+
+        private int spacingLength;
+        private int spacingThickness;
+        private int inlineStartLength;
+        private int length;
+        private int thickness;
+        private int inlineStartThickness;
+        private int x;
+        private int y;
 
         public LayoutParams(Context context, AttributeSet attributeSet) {
             super(context, attributeSet);
@@ -471,11 +479,6 @@ public class FlowLayout extends ViewGroup {
             return this.weight >= 0;
         }
 
-        public void setPosition(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
         private void readStyleParameters(Context context, AttributeSet attributeSet) {
             TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout_LayoutParams);
             try {
@@ -487,6 +490,71 @@ public class FlowLayout extends ViewGroup {
             } finally {
                 a.recycle();
             }
+        }
+
+
+        void setPosition(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        int getInlineStartLength() {
+            return inlineStartLength;
+        }
+
+        void setInlineStartLength(int inlineStartLength) {
+            this.inlineStartLength = inlineStartLength;
+        }
+
+        int getLength() {
+            return length;
+        }
+
+        void setLength(int length) {
+            this.length = length;
+        }
+
+        int getThickness() {
+            return thickness;
+        }
+
+        void setThickness(int thickness) {
+            this.thickness = thickness;
+        }
+
+        int getInlineStartThickness() {
+            return inlineStartThickness;
+        }
+
+        void setInlineStartThickness(int inlineStartThickness) {
+            this.inlineStartThickness += inlineStartThickness;
+        }
+
+        int getSpacingLength() {
+            return spacingLength;
+        }
+
+        public void setSpacingLength(int spacingLength) {
+            this.spacingLength = spacingLength;
+        }
+
+        int getSpacingThickness() {
+            return spacingThickness;
+        }
+
+        public void setSpacingThickness(int spacingThickness) {
+            this.spacingThickness = spacingThickness;
+        }
+
+        public void clearCalculatedFields() {
+            this.spacingLength = 0;
+            this.spacingThickness = 0;
+            this.inlineStartLength = 0;
+            this.length = 0;
+            this.thickness = 0;
+            this.inlineStartThickness = 0;
+            this.x = 0;
+            this.y = 0;
         }
     }
 }

@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class LineDefinition {
-    private final List<ViewContainer> views = new ArrayList<ViewContainer>();
+    private final List<View> views = new ArrayList<View>();
     private final LayoutConfiguration config;
     private final int maxLength;
     private int lineLength;
@@ -49,11 +49,12 @@ class LineDefinition {
             spacingThickness = hSpacing;
         }
 
-        final ViewContainer container = new ViewContainer(child, spacingLength, spacingThickness);
-        container.setLength(childLength);
-        container.setThickness(childThickness);
+        lp.setSpacingLength(spacingLength);
+        lp.setSpacingThickness(spacingThickness);
+        lp.setLength(childLength);
+        lp.setThickness(childThickness);
 
-        this.views.add(i, container);
+        this.views.add(i, child);
 
         this.lineLength = this.lineLengthWithSpacing + childLength;
         this.lineLengthWithSpacing = this.lineLength + spacingLength;
@@ -87,7 +88,7 @@ class LineDefinition {
         return lineStartLength;
     }
 
-    public List<ViewContainer> getViews() {
+    public List<View> getViews() {
         return views;
     }
 
