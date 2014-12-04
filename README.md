@@ -32,7 +32,7 @@ Take from maven repository (<http://search.maven.org/#search%7Cga%7C1%7Corg.apme
 
 Add it as dependency in Gradle as:
 
-	compile 'org.apmem.tools:layouts:1.5@aar'
+	compile 'org.apmem.tools:layouts:1.6@aar'
 
 Or maven
 
