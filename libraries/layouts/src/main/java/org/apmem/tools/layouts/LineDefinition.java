@@ -29,37 +29,13 @@ class LineDefinition {
 
     public void addView(int i, View child) {
         final FlowLayout.LayoutParams lp = (FlowLayout.LayoutParams) child.getLayoutParams();
-        final int hSpacing = lp.leftMargin + lp.rightMargin;
-        final int vSpacing = lp.topMargin + lp.bottomMargin;
-
-        final int childLength;
-        final int childThickness;
-        final int spacingLength;
-        final int spacingThickness;
-
-        if (this.config.getOrientation() == FlowLayout.HORIZONTAL) {
-            childLength = child.getMeasuredWidth();
-            childThickness = child.getMeasuredHeight();
-            spacingLength = hSpacing;
-            spacingThickness = vSpacing;
-        } else {
-            childLength = child.getMeasuredHeight();
-            childThickness = child.getMeasuredWidth();
-            spacingLength = vSpacing;
-            spacingThickness = hSpacing;
-        }
-
-        lp.setSpacingLength(spacingLength);
-        lp.setSpacingThickness(spacingThickness);
-        lp.setLength(childLength);
-        lp.setThickness(childThickness);
 
         this.views.add(i, child);
 
-        this.lineLength = this.lineLengthWithSpacing + childLength;
-        this.lineLengthWithSpacing = this.lineLength + spacingLength;
-        this.lineThicknessWithSpacing = Math.max(this.lineThicknessWithSpacing, childThickness + spacingThickness);
-        this.lineThickness = Math.max(this.lineThickness, childThickness);
+        this.lineLength = this.lineLengthWithSpacing + lp.getLength();
+        this.lineLengthWithSpacing = this.lineLength + lp.getSpacingLength();
+        this.lineThicknessWithSpacing = Math.max(this.lineThicknessWithSpacing, lp.getThickness() + lp.getSpacingThickness());
+        this.lineThickness = Math.max(this.lineThickness, lp.getThickness());
     }
 
     public boolean canFit(View child) {

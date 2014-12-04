@@ -66,7 +66,16 @@ public class FlowLayout extends ViewGroup {
                     getChildMeasureSpec(widthMeasureSpec, this.getPaddingLeft() + this.getPaddingRight(), lp.width),
                     getChildMeasureSpec(heightMeasureSpec, this.getPaddingTop() + this.getPaddingBottom(), lp.height)
             );
-            lp.clearCalculatedFields();
+
+            lp.clearCalculatedFields(this.config.getOrientation());
+            if (this.config.getOrientation() == FlowLayout.HORIZONTAL) {
+                lp.setLength(child.getMeasuredWidth());
+                lp.setThickness(child.getMeasuredHeight());
+            } else {
+                lp.setLength(child.getMeasuredHeight());
+                lp.setThickness(child.getMeasuredWidth());
+            }
+
             boolean newLine = lp.newLine || (modeLength != MeasureSpec.UNSPECIFIED && !currentLine.canFit(child));
             if (newLine) {
                 currentLine = new LineDefinition(controlMaxLength, config);
@@ -498,34 +507,25 @@ public class FlowLayout extends ViewGroup {
         }
 
         void setInlineStartThickness(int inlineStartThickness) {
-            this.inlineStartThickness += inlineStartThickness;
+            this.inlineStartThickness = inlineStartThickness;
         }
 
         int getSpacingLength() {
             return spacingLength;
         }
 
-        public void setSpacingLength(int spacingLength) {
-            this.spacingLength = spacingLength;
-        }
-
         int getSpacingThickness() {
             return spacingThickness;
         }
 
-        public void setSpacingThickness(int spacingThickness) {
-            this.spacingThickness = spacingThickness;
-        }
-
-        public void clearCalculatedFields() {
-            this.spacingLength = 0;
-            this.spacingThickness = 0;
-            this.inlineStartLength = 0;
-            this.length = 0;
-            this.thickness = 0;
-            this.inlineStartThickness = 0;
-            this.x = 0;
-            this.y = 0;
+        void clearCalculatedFields(int orientation) {
+            if (orientation == FlowLayout.HORIZONTAL) {
+                this.spacingLength = this.leftMargin + this.rightMargin;
+                this.spacingThickness = this.topMargin + this.bottomMargin;
+            }else{
+                this.spacingLength = this.topMargin + this.bottomMargin;
+                this.spacingThickness = this.leftMargin + this.rightMargin;
+            }
         }
     }
 }
