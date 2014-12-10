@@ -3,7 +3,7 @@
     <org.apmem.tools.layouts.FlowLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
             xmlns:f="http://schemas.android.com/apk/res-auto"
-            f:orientation="horizontal"
+            android:orientation="horizontal"
             f:debugDraw="true"
             f:weightDefault="1.0"
             f:layoutDirection="ltr"

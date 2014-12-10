@@ -15,7 +15,7 @@ class LayoutConfiguration {
     public LayoutConfiguration(Context context, AttributeSet attributeSet) {
         TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
         try {
-            this.setOrientation(a.getInteger(R.styleable.FlowLayout_orientation, FlowLayout.HORIZONTAL));
+            this.setOrientation(a.getInteger(R.styleable.FlowLayout_android_orientation, FlowLayout.HORIZONTAL));
             this.setDebugDraw(a.getBoolean(R.styleable.FlowLayout_debugDraw, false));
             this.setWeightDefault(a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f));
             this.setGravity(a.getInteger(R.styleable.FlowLayout_android_gravity, Gravity.NO_GRAVITY));
