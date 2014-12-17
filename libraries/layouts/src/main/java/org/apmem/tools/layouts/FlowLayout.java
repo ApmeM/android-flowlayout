@@ -405,6 +405,11 @@ public class FlowLayout extends ViewGroup {
     }
 
     public int getLayoutDirection() {
+        if (this.config == null){
+            // Workaround for android sdk that wants to use virtual methods within constructor.
+            return LAYOUT_DIRECTION_LTR;
+        }
+
         return this.config.getLayoutDirection();
     }
 
