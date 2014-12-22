@@ -39,7 +39,7 @@ Or maven
         <dependency>
             <groupId>org.apmem.tools</groupId>
             <artifactId>layouts</artifactId>
-            <version>1.4</version>
+            <version>1.6</version>
             <scope>provided</scope>
         </dependency>
 
@@ -52,18 +52,13 @@ Add the following xml code into your layout/something.xml:
 	>
 	</org.apmem.tools.layouts.FlowLayout>
 
-To change default horizontal and vertical spacing between elements in layout use the following code:
-        
-	xmlns:f="http://schemas.android.com/apk/res/your.namespace"
-	f:horizontalSpacing="6dip"
-	f:verticalSpacing="12dip"
-
 To change default direction use the following code
 
-	f:orientation="vertical"
+	android:orientation="vertical"
 
 To change layout direction use the following code
 
+	xmlns:f="http://schemas.android.com/apk/res/your.namespace"
 	f:layoutDirection="rtl"
 	
 Android gravity now supported (in combination with elements weight):
@@ -71,10 +66,10 @@ Android gravity now supported (in combination with elements weight):
         f:weightDefault="1.0"
         android:gravity="fill"
 
-To override default spacing use the following LayoutParameter in the child View element:
+To override default spacing between elements use default android margins in the child View element:
 
-	f:layout_horizontalSpacing="32dip"
-	f:layout_verticalSpacing="32dip"
+	android:layout_marginTop="32dip"
+	android:layout_marginRight="32dip"
 
 Also if you need to break line before some object even if there is enough space for it in the previous line - use the following LayoutParameter in the child view element:
 
@@ -84,13 +79,7 @@ Also if you need to break line before some object even if there is enough space 
 
 Layout parameters:
 
-	* horizontalSpacing - default horizontal spacing between elements
-
-	* verticalSpacing - default vertical spacing between elements
-
-	* debugDraw - draw debug information
-
-	* orientation - line direction. Use one of the following values:
+	* android:orientation - line direction. Use one of the following values:
 
 		* horizontal - line will be in horizontal direction, linebreak will create new line
 
@@ -98,9 +87,9 @@ Layout parameters:
 
         * android:gravity - standart android gravity supported
 
-        * weightDefault - default weight value for child elements. Used to fill line in case of Gravity.FILL_HORIZONTAL | Gravity.FILL_VERTICAL
+	* debugDraw - draw debug information
 
-        * weightSum - total weight of all elements (used to calculate weight of a specified element)
+        * weightDefault - default weight value for child elements. Used to fill line in case of Gravity.FILL_HORIZONTAL | Gravity.FILL_VERTICAL
 
         * layoutDirection - direction of inner child elements:
 
@@ -110,15 +99,13 @@ Layout parameters:
 
 Child layout parameters:
 
-	* layout_horizontalSpacing - override default horizontal spacing
-
-	* layout_verticalSpacing - override default vertical spacing
-
-	* layout_newLine - brake line before current element even if there is enough place in the current line.
+	* android:layout_margin* - override default spacings
 
 	* android:layout_gravity - standart aandroid gravity supported
 
         * layout_weight - weight of the element. If not specified "layout.defaultWight" is used.
+
+	* layout_newLine - brake line before current element even if there is enough place in the current line.
 
 ## Copyrights
 
