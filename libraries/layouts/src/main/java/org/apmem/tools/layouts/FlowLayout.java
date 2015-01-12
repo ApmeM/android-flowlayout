@@ -101,28 +101,8 @@ public class FlowLayout extends ViewGroup {
         }
         int contentThickness = currentLine.getLineStartThickness() + currentLine.getLineThickness();
 
-        int realControlLength;
-        int realControlThickness;
-        switch (modeLength) {
-            case MeasureSpec.UNSPECIFIED:
-                realControlLength = contentLength;
-                realControlThickness = contentThickness;
-                break;
-            case MeasureSpec.AT_MOST:
-                realControlLength = Math.min(contentLength, controlMaxLength);
-                realControlThickness = Math.min(contentThickness, controlMaxThickness);
-                break;
-            case MeasureSpec.EXACTLY:
-                realControlLength = controlMaxLength;
-// With this line control will be exactly this size (an all child elements will be narrower in case of lack of thickness)
-//                realControlThickness = controlMaxThickness;
-                realControlThickness = Math.max(contentThickness, controlMaxThickness);
-                break;
-            default:
-                realControlLength = contentLength;
-                realControlThickness = contentThickness;
-                break;
-        }
+        int realControlLength = this.findSize(modeLength, controlMaxLength, contentLength);
+        int realControlThickness = this.findSize(modeHeight, controlMaxThickness, contentThickness);
 
         this.applyGravityToLines(lines, realControlLength, realControlThickness);
 
@@ -142,6 +122,25 @@ public class FlowLayout extends ViewGroup {
             totalControlHeight += contentLength;
         }
         this.setMeasuredDimension(resolveSize(totalControlWidth, widthMeasureSpec), resolveSize(totalControlHeight, heightMeasureSpec));
+    }
+
+    private int findSize(int modeSize, int controlMaxSize, int contentSize) {
+        int realControlLength;
+        switch (modeSize) {
+            case MeasureSpec.UNSPECIFIED:
+                realControlLength = contentSize;
+                break;
+            case MeasureSpec.AT_MOST:
+                realControlLength = Math.min(contentSize, controlMaxSize);
+                break;
+            case MeasureSpec.EXACTLY:
+                realControlLength = controlMaxSize;
+                break;
+            default:
+                realControlLength = contentSize;
+                break;
+        }
+        return realControlLength;
     }
 
     private void calculateLinesAndChildPosition(List<LineDefinition> lines) {
