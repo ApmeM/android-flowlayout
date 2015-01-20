@@ -4,6 +4,8 @@
 
 Extended linear layout that wrap its content when there is no place in the current line.
 
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.apmem.tools/layouts/badge.svg?style=flat)](https://maven-badges.herokuapp.com/maven-central/org.apmem.tools/layouts/)
+
 ## Demonstration
 
 Orientation: HORIZONTAL, Gravity: FILL, LayoutDirection: LTR
