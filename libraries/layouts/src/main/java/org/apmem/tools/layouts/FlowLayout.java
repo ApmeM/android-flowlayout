@@ -96,7 +96,9 @@ public class FlowLayout extends ViewGroup {
         this.calculateLinesAndChildPosition(lines);
 
         int contentLength = 0;
-        for (LineDefinition l : lines) {
+        final int linesCount = lines.size();
+        for (int i = 0; i < linesCount; i++) {
+            LineDefinition l = lines.get(i);
             contentLength = Math.max(contentLength, l.getLineLength());
         }
         int contentThickness = currentLine.getLineStartThickness() + currentLine.getLineThickness();
@@ -106,7 +108,8 @@ public class FlowLayout extends ViewGroup {
 
         this.applyGravityToLines(lines, realControlLength, realControlThickness);
 
-        for (LineDefinition line : lines) {
+        for (int i = 0; i < linesCount; i++) {
+            LineDefinition line = lines.get(i);
             this.applyGravityToLine(line);
             this.applyPositionsToViews(line);
         }
@@ -145,11 +148,16 @@ public class FlowLayout extends ViewGroup {
 
     private void calculateLinesAndChildPosition(List<LineDefinition> lines) {
         int prevLinesThickness = 0;
-        for (LineDefinition line : lines) {
+        final int linesCount = lines.size();
+        for (int i = 0; i < linesCount; i++) {
+            final LineDefinition line = lines.get(i);
             line.addLineStartThickness(prevLinesThickness);
             prevLinesThickness += line.getLineThickness();
             int prevChildThickness = 0;
-            for (View child : line.getViews()) {
+            final List<View> childViews = line.getViews();
+            final int numChildViews = childViews.size();
+            for (int j = 0; j < numChildViews; j++) {
+                View child = childViews.get(j);
                 LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
                 layoutParams.setInlineStartLength(prevChildThickness);
                 prevChildThickness += layoutParams.getLength() + layoutParams.getSpacingLength();
@@ -158,7 +166,10 @@ public class FlowLayout extends ViewGroup {
     }
 
     private void applyPositionsToViews(LineDefinition line) {
-        for (View child : line.getViews()) {
+        final List<View> childViews = line.getViews();
+        final int childCount = childViews.size();
+        for (int i = 0; i < childCount; i++) {
+            final View child = childViews.get(i);
             LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
             if (this.config.getOrientation() == HORIZONTAL) {
                 layoutParams.setPosition(
@@ -190,7 +201,8 @@ public class FlowLayout extends ViewGroup {
         LineDefinition lastLine = lines.get(linesCount - 1);
         int excessThickness = realControlThickness - (lastLine.getLineThickness() + lastLine.getLineStartThickness());
         int excessOffset = 0;
-        for (LineDefinition child : lines) {
+        for (int i = 0; i < linesCount; i++) {
+            final LineDefinition child = lines.get(i);
             int weight = 1;
             int gravity = this.getGravity();
             int extraThickness = Math.round(excessThickness * weight / totalWeight);
@@ -216,22 +228,25 @@ public class FlowLayout extends ViewGroup {
     }
 
     private void applyGravityToLine(LineDefinition line) {
-        final int viewCount = line.getViews().size();
+        final List<View> views = line.getViews();
+        final int viewCount = views.size();
         if (viewCount <= 0) {
             return;
         }
 
         float totalWeight = 0;
-        for (View prev : line.getViews()) {
+        for (int i = 0; i < viewCount; i++) {
+            final View prev = views.get(i);
             LayoutParams plp = (LayoutParams) prev.getLayoutParams();
             totalWeight += this.getWeight(plp);
         }
 
-        View lastChild = line.getViews().get(viewCount - 1);
+        View lastChild = views.get(viewCount - 1);
         LayoutParams lastChildLayoutParams = (LayoutParams) lastChild.getLayoutParams();
         int excessLength = line.getLineLength() - (lastChildLayoutParams.getLength() + lastChildLayoutParams.getInlineStartLength());
         int excessOffset = 0;
-        for (View child : line.getViews()) {
+        for (int i = 0; i < viewCount; i++) {
+            final View child = views.get(i);
             LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
 
             float weight = this.getWeight(layoutParams);
