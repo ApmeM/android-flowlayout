@@ -8,8 +8,8 @@ version = VERSION_NAME
 group = GROUP
 
 android {
-  compileSdkVersion 10
-  buildToolsVersion '19.1.0'
+  compileSdkVersion 22
+  buildToolsVersion '22.0.1'
 
   defaultConfig {
     versionName project.VERSION_NAME
