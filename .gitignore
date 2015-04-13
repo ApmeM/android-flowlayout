@@ -8,3 +8,4 @@ target/
 .gradle
 build/
 *.orig
+local.properties
