@@ -60,6 +60,10 @@ class LineDefinition {
         return lineLength;
     }
 
+    public int getLineLengthWithSpacing() {
+        return lineLengthWithSpacing;
+    }
+
     public int getLineStartLength() {
         return lineStartLength;
     }
