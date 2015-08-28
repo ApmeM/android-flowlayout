@@ -3,8 +3,10 @@ package org.apmem.tools.example;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import org.apmem.tools.layouts.FlowLayout;
 
 public class MyActivity extends Activity {
@@ -93,5 +95,11 @@ public class MyActivity extends Activity {
 
         });
         layout.addView(buttonDebug, 0);
+
+
+        TextView textView = (TextView) LayoutInflater.from(layout.getContext())
+                .inflate(R.layout.inflating_layout, layout, false);
+        textView.setText("inflated layout text");
+        layout.addView(textView,0);
     }
 }
