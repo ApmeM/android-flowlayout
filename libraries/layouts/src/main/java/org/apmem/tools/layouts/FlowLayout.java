@@ -21,7 +21,7 @@ public class FlowLayout extends ViewGroup {
     public static final int LAYOUT_DIRECTION_RTL = 1;
 
     private final LayoutConfiguration config;
-    List<LineDefinition> lines = new ArrayList<LineDefinition>();
+    List<LineDefinition> lines = new ArrayList<>();
 
     public FlowLayout(Context context) {
         super(context);
@@ -50,7 +50,7 @@ public class FlowLayout extends ViewGroup {
         final int modeThickness = this.config.getOrientation() == HORIZONTAL ? modeHeight : modeWidth;
 
         lines.clear();
-        LineDefinition currentLine = new LineDefinition(controlMaxLength, config);
+        LineDefinition currentLine = new LineDefinition(controlMaxLength);
         lines.add(currentLine);
 
         final int count = this.getChildCount();
@@ -67,7 +67,7 @@ public class FlowLayout extends ViewGroup {
                     getChildMeasureSpec(heightMeasureSpec, this.getPaddingTop() + this.getPaddingBottom(), lp.height)
             );
 
-            lp.clearCalculatedFields(this.config.getOrientation());
+            lp.setOrientation(this.config.getOrientation());
             if (this.config.getOrientation() == FlowLayout.HORIZONTAL) {
                 lp.setLength(child.getMeasuredWidth());
                 lp.setThickness(child.getMeasuredHeight());
@@ -78,7 +78,7 @@ public class FlowLayout extends ViewGroup {
 
             boolean newLine = lp.newLine || (modeLength != MeasureSpec.UNSPECIFIED && !currentLine.canFit(child));
             if (newLine) {
-                currentLine = new LineDefinition(controlMaxLength, config);
+                currentLine = new LineDefinition(controlMaxLength);
                 if (this.config.getOrientation() == VERTICAL && this.config.getLayoutDirection() == LAYOUT_DIRECTION_RTL) {
                     lines.add(0, currentLine);
                 } else {
@@ -151,16 +151,16 @@ public class FlowLayout extends ViewGroup {
         final int linesCount = lines.size();
         for (int i = 0; i < linesCount; i++) {
             final LineDefinition line = lines.get(i);
-            line.addLineStartThickness(prevLinesThickness);
+            line.setLineStartThickness(prevLinesThickness);
             prevLinesThickness += line.getLineThickness();
             int prevChildThickness = 0;
             final List<View> childViews = line.getViews();
-            final int numChildViews = childViews.size();
-            for (int j = 0; j < numChildViews; j++) {
+            final int childCount = childViews.size();
+            for (int j = 0; j < childCount; j++) {
                 View child = childViews.get(j);
-                LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
-                layoutParams.setInlineStartLength(prevChildThickness);
-                prevChildThickness += layoutParams.getLength() + layoutParams.getSpacingLength();
+                LayoutParams lp = (LayoutParams) child.getLayoutParams();
+                lp.setInlineStartLength(prevChildThickness);
+                prevChildThickness += lp.getLength() + lp.getSpacingLength();
             }
         }
     }
@@ -220,8 +220,8 @@ public class FlowLayout extends ViewGroup {
             Gravity.apply(gravity, childLength, childThickness, container, result);
 
             excessOffset += extraThickness;
-            child.addLineStartLength(result.left);
-            child.addLineStartThickness(result.top);
+            child.setLineStartLength(child.getLineStartLength() + result.left);
+            child.setLineStartThickness(child.getLineStartThickness() + result.top);
             child.setLength(result.width());
             child.setThickness(result.height());
         }
@@ -251,7 +251,12 @@ public class FlowLayout extends ViewGroup {
 
             float weight = this.getWeight(layoutParams);
             int gravity = this.getGravity(layoutParams);
-            int extraLength = Math.round(excessLength * weight / totalWeight);
+            int extraLength;
+            if (totalWeight == 0) {
+                extraLength = excessLength / viewCount;
+            } else {
+                extraLength = Math.round(excessLength * weight / totalWeight);
+            }
 
             final int childLength = layoutParams.getLength() + layoutParams.getSpacingLength();
             final int childThickness = layoutParams.getThickness() + layoutParams.getSpacingThickness();
@@ -382,44 +387,53 @@ public class FlowLayout extends ViewGroup {
         return paint;
     }
 
+    @SuppressWarnings("unused")
     public int getOrientation() {
         return this.config.getOrientation();
     }
 
+    @SuppressWarnings("unused")
     public void setOrientation(int orientation) {
         this.config.setOrientation(orientation);
         this.requestLayout();
     }
 
+    @SuppressWarnings("unused")
     public boolean isDebugDraw() {
         return this.config.isDebugDraw();
     }
 
+    @SuppressWarnings("unused")
     public void setDebugDraw(boolean debugDraw) {
         this.config.setDebugDraw(debugDraw);
         this.invalidate();
     }
 
+    @SuppressWarnings("unused")
     public float getWeightDefault() {
         return this.config.getWeightDefault();
     }
 
+    @SuppressWarnings("unused")
     public void setWeightDefault(float weightDefault) {
         this.config.setWeightDefault(weightDefault);
         this.requestLayout();
     }
 
+    @SuppressWarnings("unused")
     public int getGravity() {
         return this.config.getGravity();
     }
 
+    @SuppressWarnings("unused")
     public void setGravity(int gravity) {
         this.config.setGravity(gravity);
         this.requestLayout();
     }
 
+    @SuppressWarnings("unused")
     public int getLayoutDirection() {
-        if (this.config == null){
+        if (this.config == null) {
             // Workaround for android sdk that wants to use virtual methods within constructor.
             return LAYOUT_DIRECTION_LTR;
         }
@@ -427,6 +441,7 @@ public class FlowLayout extends ViewGroup {
         return this.config.getLayoutDirection();
     }
 
+    @SuppressWarnings("unused")
     public void setLayoutDirection(int layoutDirection) {
         this.config.setLayoutDirection(layoutDirection);
         this.requestLayout();
@@ -450,14 +465,13 @@ public class FlowLayout extends ViewGroup {
         public int gravity = Gravity.NO_GRAVITY;
         public float weight = -1.0f;
 
-        private int spacingLength;
-        private int spacingThickness;
         private int inlineStartLength;
         private int length;
         private int thickness;
         private int inlineStartThickness;
         private int x;
         private int y;
+        private int orientation;
 
         public LayoutParams(Context context, AttributeSet attributeSet) {
             super(context, attributeSet);
@@ -530,21 +544,31 @@ public class FlowLayout extends ViewGroup {
         }
 
         int getSpacingLength() {
-            return spacingLength;
+            if (orientation == FlowLayout.HORIZONTAL) {
+                return this.leftMargin + this.rightMargin;
+            } else {
+                return this.topMargin + this.bottomMargin;
+            }
         }
 
         int getSpacingThickness() {
-            return spacingThickness;
+            if (orientation == FlowLayout.HORIZONTAL) {
+                return this.topMargin + this.bottomMargin;
+            } else {
+                return this.leftMargin + this.rightMargin;
+            }
         }
 
-        void clearCalculatedFields(int orientation) {
-            if (orientation == FlowLayout.HORIZONTAL) {
-                this.spacingLength = this.leftMargin + this.rightMargin;
-                this.spacingThickness = this.topMargin + this.bottomMargin;
-            }else{
-                this.spacingLength = this.topMargin + this.bottomMargin;
-                this.spacingThickness = this.leftMargin + this.rightMargin;
-            }
+        void setOrientation(int orientation) {
+            this.orientation = orientation;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
         }
     }
 }

@@ -59,11 +59,19 @@ class LayoutConfiguration {
 
     public void setGravity(int gravity) {
         if ((gravity & Gravity.HORIZONTAL_GRAVITY_MASK) == 0) {
-            gravity |= Gravity.LEFT;
+            if (orientation == FlowLayout.HORIZONTAL) {
+                gravity |= Gravity.LEFT;
+            }else {
+                gravity |= Gravity.TOP;
+            }
         }
 
         if ((gravity & Gravity.VERTICAL_GRAVITY_MASK) == 0) {
-            gravity |= Gravity.TOP;
+            if (orientation == FlowLayout.HORIZONTAL) {
+                gravity |= Gravity.TOP;
+            }else {
+                gravity |= Gravity.LEFT;
+            }
         }
 
         this.gravity = gravity;

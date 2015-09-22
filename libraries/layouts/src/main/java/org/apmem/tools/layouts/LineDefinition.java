@@ -6,21 +6,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 class LineDefinition {
-    private final List<View> views = new ArrayList<View>();
-    private final LayoutConfiguration config;
+    private final List<View> views = new ArrayList<>();
     private final int maxLength;
     private int lineLength;
     private int lineThickness;
-    private int lineLengthWithSpacing;
-    private int lineThicknessWithSpacing;
     private int lineStartThickness;
     private int lineStartLength;
 
-    public LineDefinition(int maxLength, LayoutConfiguration config) {
+    public LineDefinition(int maxLength) {
         this.lineStartThickness = 0;
         this.lineStartLength = 0;
         this.maxLength = maxLength;
-        this.config = config;
     }
 
     public void addView(View child) {
@@ -32,28 +28,25 @@ class LineDefinition {
 
         this.views.add(i, child);
 
-        this.lineLength = this.lineLengthWithSpacing + lp.getLength();
-        this.lineLengthWithSpacing = this.lineLength + lp.getSpacingLength();
-        this.lineThicknessWithSpacing = Math.max(this.lineThicknessWithSpacing, lp.getThickness() + lp.getSpacingThickness());
-        this.lineThickness = Math.max(this.lineThickness, lp.getThickness());
+        this.lineLength = this.lineLength + lp.getLength() + lp.getSpacingLength();
+        this.lineThickness = Math.max(this.lineThickness, lp.getThickness() + lp.getSpacingThickness());
     }
 
     public boolean canFit(View child) {
-        final int childLength;
-        if (this.config.getOrientation() == FlowLayout.HORIZONTAL) {
-            childLength = child.getMeasuredWidth();
-        } else {
-            childLength = child.getMeasuredHeight();
-        }
-        return lineLengthWithSpacing + childLength <= maxLength;
+        final FlowLayout.LayoutParams lp = (FlowLayout.LayoutParams) child.getLayoutParams();
+        return lineLength + lp.getLength() + lp.getSpacingLength() <= maxLength;
     }
 
     public int getLineStartThickness() {
         return lineStartThickness;
     }
 
+    public void setLineStartThickness(int lineStartThickness) {
+        this.lineStartThickness = lineStartThickness;
+    }
+
     public int getLineThickness() {
-        return lineThicknessWithSpacing;
+        return lineThickness;
     }
 
     public int getLineLength() {
@@ -64,27 +57,19 @@ class LineDefinition {
         return lineStartLength;
     }
 
+    public void setLineStartLength(int lineStartLength) {
+        this.lineStartLength = lineStartLength;
+    }
+
     public List<View> getViews() {
         return views;
     }
 
     public void setThickness(int thickness) {
-        int thicknessSpacing = this.lineThicknessWithSpacing - this.lineThickness;
-        this.lineThicknessWithSpacing = thickness;
-        this.lineThickness = thickness - thicknessSpacing;
+        this.lineThickness = thickness;
     }
 
     public void setLength(int length) {
-        int lengthSpacing = this.lineLengthWithSpacing - this.lineLength;
         this.lineLength = length;
-        this.lineLengthWithSpacing = length + lengthSpacing;
-    }
-
-    public void addLineStartThickness(int extraLineStartThickness) {
-        this.lineStartThickness += extraLineStartThickness;
-    }
-
-    public void addLineStartLength(int extraLineStartLength) {
-        this.lineStartLength += extraLineStartLength;
     }
 }
