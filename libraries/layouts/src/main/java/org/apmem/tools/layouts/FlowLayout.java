@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -330,7 +331,7 @@ public class FlowLayout extends ViewGroup {
     }
 
     private void drawDebugInfo(Canvas canvas, View child) {
-        if (!this.config.isDebugDraw()) {
+        if (!isDebugDraw()) {
             return;
         }
 
@@ -402,7 +403,23 @@ public class FlowLayout extends ViewGroup {
     }
 
     public boolean isDebugDraw() {
-        return this.config.isDebugDraw();
+        return this.config.isDebugDraw()
+                || debugDraw()
+                ;
+    }
+
+    private boolean debugDraw() {
+        try {
+            // android add this method at 4.1
+            Method m = ViewGroup.class.getDeclaredMethod("debugDraw", (Class[]) null);
+            m.setAccessible(true);
+            return (boolean) m.invoke(this, new Object[]{null});
+        } catch (Exception e) {
+            // if no such method (android not support this at lower api level), return false
+            // ignore this, it's safe here
+        }
+
+        return false;
     }
 
     public void setDebugDraw(boolean debugDraw) {
