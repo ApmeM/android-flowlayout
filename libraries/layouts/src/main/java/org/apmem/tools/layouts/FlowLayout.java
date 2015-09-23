@@ -279,11 +279,11 @@ public class FlowLayout extends ViewGroup {
     }
 
     private int getGravity(LayoutParams lp) {
-        return lp.gravitySpecified() ? lp.gravity : this.config.getGravity();
+        return lp.gravitySpecified() ? lp.getGravity() : this.config.getGravity();
     }
 
     private float getWeight(LayoutParams lp) {
-        return lp.weightSpecified() ? lp.weight : this.config.getWeightDefault();
+        return lp.weightSpecified() ? lp.getWeight() : this.config.getWeightDefault();
     }
 
     @Override
@@ -387,51 +387,42 @@ public class FlowLayout extends ViewGroup {
         return paint;
     }
 
-    @SuppressWarnings("unused")
     public int getOrientation() {
         return this.config.getOrientation();
     }
 
-    @SuppressWarnings("unused")
     public void setOrientation(int orientation) {
         this.config.setOrientation(orientation);
         this.requestLayout();
     }
 
-    @SuppressWarnings("unused")
     public boolean isDebugDraw() {
         return this.config.isDebugDraw();
     }
 
-    @SuppressWarnings("unused")
     public void setDebugDraw(boolean debugDraw) {
         this.config.setDebugDraw(debugDraw);
         this.invalidate();
     }
 
-    @SuppressWarnings("unused")
     public float getWeightDefault() {
         return this.config.getWeightDefault();
     }
 
-    @SuppressWarnings("unused")
     public void setWeightDefault(float weightDefault) {
         this.config.setWeightDefault(weightDefault);
         this.requestLayout();
     }
 
-    @SuppressWarnings("unused")
     public int getGravity() {
         return this.config.getGravity();
     }
 
-    @SuppressWarnings("unused")
     public void setGravity(int gravity) {
         this.config.setGravity(gravity);
         this.requestLayout();
     }
 
-    @SuppressWarnings("unused")
     public int getLayoutDirection() {
         if (this.config == null) {
             // Workaround for android sdk that wants to use virtual methods within constructor.
@@ -441,7 +432,6 @@ public class FlowLayout extends ViewGroup {
         return this.config.getLayoutDirection();
     }
 
-    @SuppressWarnings("unused")
     public void setLayoutDirection(int layoutDirection) {
         this.config.setLayoutDirection(layoutDirection);
         this.requestLayout();
@@ -462,9 +452,9 @@ public class FlowLayout extends ViewGroup {
                 @ViewDebug.IntToString(from = Gravity.CENTER, to = "CENTER"),
                 @ViewDebug.IntToString(from = Gravity.FILL, to = "FILL")
         })
-        public int gravity = Gravity.NO_GRAVITY;
-        public float weight = -1.0f;
 
+        private int gravity = Gravity.NO_GRAVITY;
+        private float weight = -1.0f;
         private int inlineStartLength;
         private int length;
         private int thickness;
@@ -569,6 +559,22 @@ public class FlowLayout extends ViewGroup {
 
         public int getY() {
             return y;
+        }
+
+        public int getGravity() {
+            return gravity;
+        }
+
+        public void setGravity(int gravity) {
+            this.gravity = gravity;
+        }
+
+        public float getWeight() {
+            return weight;
+        }
+
+        public void setWeight(float weight) {
+            this.weight = weight;
         }
     }
 }
