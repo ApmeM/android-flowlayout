@@ -67,7 +67,7 @@ public class FlowLayout extends ViewGroup {
                     getChildMeasureSpec(heightMeasureSpec, this.getPaddingTop() + this.getPaddingBottom(), lp.height)
             );
 
-            lp.setOrientation(this.config.getOrientation());
+            lp.orientation = this.config.getOrientation();
             if (this.config.getOrientation() == FlowLayout.HORIZONTAL) {
                 lp.setLength(child.getMeasuredWidth());
                 lp.setThickness(child.getMeasuredHeight());
@@ -76,7 +76,7 @@ public class FlowLayout extends ViewGroup {
                 lp.setThickness(child.getMeasuredWidth());
             }
 
-            boolean newLine = lp.newLine || (modeLength != MeasureSpec.UNSPECIFIED && !currentLine.canFit(child));
+            boolean newLine = lp.isNewLine() || (modeLength != MeasureSpec.UNSPECIFIED && !currentLine.canFit(child));
             if (newLine) {
                 currentLine = new LineDefinition(controlMaxLength);
                 if (this.config.getOrientation() == VERTICAL && this.config.getLayoutDirection() == LAYOUT_DIRECTION_RTL) {
@@ -200,6 +200,11 @@ public class FlowLayout extends ViewGroup {
         final int totalWeight = linesCount;
         LineDefinition lastLine = lines.get(linesCount - 1);
         int excessThickness = realControlThickness - (lastLine.getLineThickness() + lastLine.getLineStartThickness());
+
+        if (excessThickness < 0){
+            excessThickness = 0;
+        }
+
         int excessOffset = 0;
         for (int i = 0; i < linesCount; i++) {
             final LineDefinition child = lines.get(i);
@@ -366,7 +371,7 @@ public class FlowLayout extends ViewGroup {
             canvas.drawLine(x + 4.0f, y - lp.topMargin + 4.0f, x, y - lp.topMargin, childPaint);
         }
 
-        if (lp.newLine) {
+        if (lp.isNewLine()) {
             if (this.config.getOrientation() == HORIZONTAL) {
                 float x = child.getLeft();
                 float y = child.getTop() + child.getHeight() / 2.0f;
@@ -438,7 +443,6 @@ public class FlowLayout extends ViewGroup {
     }
 
     public static class LayoutParams extends MarginLayoutParams {
-        public boolean newLine = false;
         @ViewDebug.ExportedProperty(mapping = {
                 @ViewDebug.IntToString(from = Gravity.NO_GRAVITY, to = "NONE"),
                 @ViewDebug.IntToString(from = Gravity.TOP, to = "TOP"),
@@ -453,6 +457,7 @@ public class FlowLayout extends ViewGroup {
                 @ViewDebug.IntToString(from = Gravity.FILL, to = "FILL")
         })
 
+        private boolean newLine = false;
         private int gravity = Gravity.NO_GRAVITY;
         private float weight = -1.0f;
         private int inlineStartLength;
@@ -549,10 +554,6 @@ public class FlowLayout extends ViewGroup {
             }
         }
 
-        void setOrientation(int orientation) {
-            this.orientation = orientation;
-        }
-
         public int getX() {
             return x;
         }
@@ -576,5 +577,15 @@ public class FlowLayout extends ViewGroup {
         public void setWeight(float weight) {
             this.weight = weight;
         }
+
+        public boolean isNewLine() {
+            return newLine;
+        }
+
+        public void setNewLine(boolean newLine) {
+            this.newLine = newLine;
+        }
+
+
     }
 }
