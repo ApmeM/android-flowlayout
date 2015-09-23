@@ -212,7 +212,7 @@ public class FlowLayout extends ViewGroup {
             int gravity = this.getGravity();
             int extraThickness = Math.round(excessThickness * weight / totalWeight);
 
-            final int childLength = child.getLineLength();
+            final int childLength = child.getLineLengthWithSpacing();
             final int childThickness = child.getLineThickness();
 
             Rect container = new Rect();
