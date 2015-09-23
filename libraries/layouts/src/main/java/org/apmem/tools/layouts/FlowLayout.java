@@ -202,7 +202,7 @@ public class FlowLayout extends ViewGroup {
         LineDefinition lastLine = lines.get(linesCount - 1);
         int excessThickness = realControlThickness - (lastLine.getLineThickness() + lastLine.getLineStartThickness());
 
-        if (excessThickness < 0){
+        if (excessThickness < 0) {
             excessThickness = 0;
         }
 
@@ -403,9 +403,12 @@ public class FlowLayout extends ViewGroup {
     }
 
     public boolean isDebugDraw() {
-        return this.config.isDebugDraw()
-                || debugDraw()
-                ;
+        return this.config.isDebugDraw() || debugDraw();
+    }
+
+    public void setDebugDraw(boolean debugDraw) {
+        this.config.setDebugDraw(debugDraw);
+        this.invalidate();
     }
 
     private boolean debugDraw() {
@@ -420,11 +423,6 @@ public class FlowLayout extends ViewGroup {
         }
 
         return false;
-    }
-
-    public void setDebugDraw(boolean debugDraw) {
-        this.config.setDebugDraw(debugDraw);
-        this.invalidate();
     }
 
     public float getWeightDefault() {
