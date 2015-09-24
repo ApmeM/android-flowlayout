@@ -35,14 +35,14 @@ Take from maven repository (<http://search.maven.org/#search%7Cga%7C1%7Corg.apme
 
 Add it as dependency in Gradle as:
 
-	compile 'org.apmem.tools:layouts:1.9@aar'
+	compile 'org.apmem.tools:layouts:1.10@aar'
 
 Or maven
 
         <dependency>
             <groupId>org.apmem.tools</groupId>
             <artifactId>layouts</artifactId>
-            <version>1.9</version>
+            <version>1.10</version>
             <scope>provided</scope>
         </dependency>
 
