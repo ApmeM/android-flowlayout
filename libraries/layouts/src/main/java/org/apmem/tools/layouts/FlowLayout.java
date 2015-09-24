@@ -210,7 +210,7 @@ public class FlowLayout extends ViewGroup {
         for (int i = 0; i < linesCount; i++) {
             final LineDefinition child = lines.get(i);
             int weight = 1;
-            int gravity = this.getGravity();
+            int gravity = this.getGravity(null);
             int extraThickness = Math.round(excessThickness * weight / totalWeight);
 
             final int childLength = child.getLineLength();
@@ -285,7 +285,58 @@ public class FlowLayout extends ViewGroup {
     }
 
     private int getGravity(LayoutParams lp) {
-        return lp.gravitySpecified() ? lp.getGravity() : this.config.getGravity();
+        int parentGravity = this.config.getGravity();
+
+        int childGravity;
+        // get childGravity of child view (if exists)
+        if (lp != null && lp.gravitySpecified()) {
+            childGravity = lp.getGravity();
+        } else {
+            childGravity = parentGravity;
+        }
+
+        childGravity = getGravityFromRelative(childGravity);
+        parentGravity = getGravityFromRelative(parentGravity);
+
+        // add parent gravity to child gravity if child gravity is not specified
+        if ((childGravity & Gravity.HORIZONTAL_GRAVITY_MASK) == 0) {
+            childGravity |= parentGravity & Gravity.HORIZONTAL_GRAVITY_MASK;
+        }
+        if ((childGravity & Gravity.VERTICAL_GRAVITY_MASK) == 0) {
+            childGravity |= parentGravity & Gravity.VERTICAL_GRAVITY_MASK;
+        }
+
+        // if childGravity is still not specified - set default top - left gravity
+        if ((childGravity & Gravity.HORIZONTAL_GRAVITY_MASK) == 0) {
+            childGravity |= Gravity.LEFT;
+        }
+        if ((childGravity & Gravity.VERTICAL_GRAVITY_MASK) == 0) {
+            childGravity |= Gravity.TOP;
+        }
+
+        return childGravity;
+    }
+
+    private int getGravityFromRelative(int childGravity) {
+        // swap directions for vertical non relative view
+        // if it is relative, then START is TOP, and we do not need to switch it here.
+        // it will be switched later on onMeasure stage when calculations will be with length and thickness
+        if (this.config.getOrientation() == VERTICAL && (childGravity & Gravity.RELATIVE_LAYOUT_DIRECTION) == 0) {
+            int horizontalGravity = childGravity;
+            childGravity = 0;
+            childGravity |= (horizontalGravity & Gravity.HORIZONTAL_GRAVITY_MASK) >> Gravity.AXIS_X_SHIFT << Gravity.AXIS_Y_SHIFT;
+            childGravity |= (horizontalGravity & Gravity.VERTICAL_GRAVITY_MASK) >> Gravity.AXIS_Y_SHIFT << Gravity.AXIS_X_SHIFT;
+        }
+
+        // for relative layout and RTL direction swap left and right gravity
+        if (this.config.getLayoutDirection() == LAYOUT_DIRECTION_RTL && (childGravity & Gravity.RELATIVE_LAYOUT_DIRECTION) != 0) {
+            int ltrGravity = childGravity;
+            childGravity = 0;
+            childGravity |= (ltrGravity & Gravity.LEFT) == Gravity.LEFT ? Gravity.RIGHT : 0;
+            childGravity |= (ltrGravity & Gravity.RIGHT) == Gravity.RIGHT ? Gravity.LEFT : 0;
+        }
+
+        return childGravity;
     }
 
     private float getWeight(LayoutParams lp) {
