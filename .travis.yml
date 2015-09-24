@@ -1,0 +1,10 @@
+language: android
+android:
+  components:
+    - build-tools-21.1.2
+
+before_install:
+  - chmod +x gradlew
+install: true
+script:
+  - ./gradlew test
