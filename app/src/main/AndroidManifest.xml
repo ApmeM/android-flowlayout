@@ -3,13 +3,14 @@
           package="org.apmem.tools.example" android:versionCode="1" android:versionName="1.0-SNAPSHOT">
     <uses-sdk android:minSdkVersion="15"/>
     <application android:label="@string/app_name" android:icon="@drawable/ic_launcher">
-        <activity android:name="org.apmem.tools.example.MyActivity"
-                  android:label="@string/app_name">
+        <activity android:name="org.apmem.tools.example.MyActivity" android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <activity android:name="org.apmem.tools.example.FlowLayoutActivity" android:label="@string/flow_layout_activity"/>
+        <activity android:name="org.apmem.tools.example.FlowLayoutManagerActivity" android:label="@string/flow_layout_manager_activity"/>
     </application>
 </manifest>
 

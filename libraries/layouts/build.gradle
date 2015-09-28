@@ -1,5 +1,9 @@
 apply plugin: 'com.android.library'
 
+repositories {
+    mavenCentral()
+}
+
 version = VERSION_NAME
 group = GROUP
 
@@ -11,6 +15,13 @@ android {
     versionName project.VERSION_NAME
     versionCode Integer.parseInt(project.VERSION_CODE)
   }
+  lintOptions {
+    abortOnError false
+  }
+}
+
+dependencies {
+    compile 'com.android.support:recyclerview-v7:23.0.1'
 }
 
 apply from: 'maven_push.gradle'

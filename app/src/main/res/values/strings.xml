@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">android-flowlayout-example</string>
+    <string name="flow_layout_activity">layout</string>
+    <string name="flow_layout_manager_activity">manager</string>
+
     <string name="button_test">test</string>
     <string name="button_horizontalMargin">horizontal</string>
     <string name="button_verticalMargin">vertical</string>

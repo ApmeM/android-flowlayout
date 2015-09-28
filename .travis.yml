@@ -2,6 +2,8 @@ language: android
 android:
   components:
     - build-tools-21.1.2
+    - extra-android-support
+    - extra-android-m2repository
 
 before_install:
   - chmod +x gradlew

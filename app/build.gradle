@@ -1,11 +1,7 @@
 apply plugin: 'com.android.application'
 
-dependencies {
-    compile project(':libraries:layouts')
-}
-
 repositories {
-  mavenCentral()
+    mavenCentral()
 }
 
 version = VERSION_NAME
@@ -18,14 +14,16 @@ android {
   defaultConfig {
     versionName project.VERSION_NAME
     versionCode Integer.parseInt(project.VERSION_CODE)
-    testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
   }
   lintOptions {
-      abortOnError false
+    abortOnError false
   }
 }
 
 dependencies {
+    compile project(':libraries:layouts')
+    compile 'com.android.support:recyclerview-v7:23.0.1'
+
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:1.8.5'
     testCompile 'org.apache.maven:maven-ant-tasks:2.1.3' // fixes issue on linux/mac
