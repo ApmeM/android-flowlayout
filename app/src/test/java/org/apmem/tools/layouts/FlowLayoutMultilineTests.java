@@ -42,20 +42,21 @@ public class FlowLayoutMultilineTests {
                 View.MeasureSpec.makeMeasureSpec(70, View.MeasureSpec.AT_MOST),
                 View.MeasureSpec.makeMeasureSpec(80, View.MeasureSpec.AT_MOST)
         );
+        layout.layout(0, 0, 0, 0);
 
-        Assert.assertEquals(0, lp1.getX());
-        Assert.assertEquals(0, lp1.getY());
-        Assert.assertEquals(30 + 1 + 3, lp2.getX());
-        Assert.assertEquals(0, lp2.getY());
-        Assert.assertEquals(0, lp3.getX());
-        Assert.assertEquals(40 + 2 + 4, lp3.getY());
+        Assert.assertEquals(1, btn1.getLeft());
+        Assert.assertEquals(2, btn1.getTop());
+        Assert.assertEquals(30 + 1 + 3 + 1, btn2.getLeft());
+        Assert.assertEquals(2, btn2.getTop());
+        Assert.assertEquals(1, btn3.getLeft());
+        Assert.assertEquals(40 + 2 + 4 + 2, btn3.getTop());
 
-        Assert.assertEquals(30, lp1.getLength());
-        Assert.assertEquals(40, lp1.getThickness());
-        Assert.assertEquals(10, lp2.getLength());
-        Assert.assertEquals(20, lp2.getThickness());
-        Assert.assertEquals(50, lp3.getLength());
-        Assert.assertEquals(10, lp3.getThickness());
+        Assert.assertEquals(30, btn1.getWidth());
+        Assert.assertEquals(40, btn1.getHeight());
+        Assert.assertEquals(10, btn2.getWidth());
+        Assert.assertEquals(20, btn2.getHeight());
+        Assert.assertEquals(50, btn3.getWidth());
+        Assert.assertEquals(10, btn3.getHeight());
     }
 
     @Test
@@ -85,20 +86,21 @@ public class FlowLayoutMultilineTests {
                 View.MeasureSpec.makeMeasureSpec(70, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(80, View.MeasureSpec.EXACTLY)
         );
+        layout.layout(0, 0, 0, 0);
 
-        Assert.assertEquals(0, lp1.getX());
-        Assert.assertEquals(0, lp1.getY());
-        Assert.assertEquals(30 + 1 + 3, lp2.getX());
-        Assert.assertEquals(0, lp2.getY());
-        Assert.assertEquals(0, lp3.getX());
-        Assert.assertEquals(40 + 2 + 4 + (80 - (40 + 2 + 4 + 10 + 2 + 4)) / 2, lp3.getY());
+        Assert.assertEquals(1, btn1.getLeft());
+        Assert.assertEquals(2, btn1.getTop());
+        Assert.assertEquals(30 + 1 + 3 + 1, btn2.getLeft());
+        Assert.assertEquals(2, btn2.getTop());
+        Assert.assertEquals(1, btn3.getLeft());
+        Assert.assertEquals(40 + 2 + 4 + (80 - (40 + 2 + 4 + 10 + 2 + 4)) / 2 + 2, btn3.getTop());
 
-        Assert.assertEquals(30, lp1.getLength());
-        Assert.assertEquals(40, lp1.getThickness());
-        Assert.assertEquals(10, lp2.getLength());
-        Assert.assertEquals(20, lp2.getThickness());
-        Assert.assertEquals(50, lp3.getLength());
-        Assert.assertEquals(10, lp3.getThickness());
+        Assert.assertEquals(30, btn1.getWidth());
+        Assert.assertEquals(40, btn1.getHeight());
+        Assert.assertEquals(10, btn2.getWidth());
+        Assert.assertEquals(20, btn2.getHeight());
+        Assert.assertEquals(50, btn3.getWidth());
+        Assert.assertEquals(10, btn3.getHeight());
     }
 
     @Test
@@ -128,20 +130,21 @@ public class FlowLayoutMultilineTests {
                 View.MeasureSpec.makeMeasureSpec(70, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(80, View.MeasureSpec.EXACTLY)
         );
+        layout.layout(0, 0, 0, 0);
 
-        Assert.assertEquals(0, lp1.getX());
-        Assert.assertEquals(0, lp1.getY());
-        Assert.assertEquals(30 + 1 + 3, lp2.getX());
-        Assert.assertEquals(0, lp2.getY());
-        Assert.assertEquals(0, lp3.getX());
-        Assert.assertEquals(40 + 2 + 4, lp3.getY());
+        Assert.assertEquals(1, btn1.getLeft());
+        Assert.assertEquals(2, btn1.getTop());
+        Assert.assertEquals(30 + 1 + 3 + 1, btn2.getLeft());
+        Assert.assertEquals(2, btn2.getTop());
+        Assert.assertEquals(1, btn3.getLeft());
+        Assert.assertEquals(40 + 2 + 4 + 2, btn3.getTop());
 
-        Assert.assertEquals(30, lp1.getLength());
-        Assert.assertEquals(40, lp1.getThickness());
-        Assert.assertEquals(10, lp2.getLength());
-        Assert.assertEquals(20, lp2.getThickness());
-        Assert.assertEquals(50, lp3.getLength());
-        Assert.assertEquals(30, lp3.getThickness());
+        Assert.assertEquals(30, btn1.getWidth());
+        Assert.assertEquals(40, btn1.getHeight());
+        Assert.assertEquals(10, btn2.getWidth());
+        Assert.assertEquals(20, btn2.getHeight());
+        Assert.assertEquals(50, btn3.getWidth());
+        Assert.assertEquals(30, btn3.getHeight());
     }
 
 
@@ -167,15 +170,16 @@ public class FlowLayoutMultilineTests {
                 View.MeasureSpec.makeMeasureSpec(70, View.MeasureSpec.AT_MOST),
                 View.MeasureSpec.makeMeasureSpec(80, View.MeasureSpec.AT_MOST)
         );
+        layout.layout(0, 0, 0, 0);
 
-        Assert.assertEquals(0, lp1.getX());
-        Assert.assertEquals(0, lp1.getY());
-        Assert.assertEquals(0, lp2.getX());
-        Assert.assertEquals(40 + 2 + 4, lp2.getY());
+        Assert.assertEquals(1, btn1.getLeft());
+        Assert.assertEquals(2, btn1.getTop());
+        Assert.assertEquals(1, btn2.getLeft());
+        Assert.assertEquals(40 + 2 + 4 + 2, btn2.getTop());
 
-        Assert.assertEquals(30, lp1.getLength());
-        Assert.assertEquals(40, lp1.getThickness());
-        Assert.assertEquals(10, lp2.getLength());
-        Assert.assertEquals(20, lp2.getThickness());
+        Assert.assertEquals(30, btn1.getWidth());
+        Assert.assertEquals(40, btn1.getHeight());
+        Assert.assertEquals(10, btn2.getWidth());
+        Assert.assertEquals(20, btn2.getHeight());
     }
 }

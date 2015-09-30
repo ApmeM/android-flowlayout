@@ -1,4 +1,4 @@
-package org.apmem.tools.layouts;
+package org.apmem.tools.layouts.logic;
 
 import android.graphics.Rect;
 import android.view.Gravity;
@@ -6,11 +6,11 @@ import android.view.View;
 
 import java.util.List;
 
-public class Common {
+public class CommonLogic {
     public static final int HORIZONTAL = 0;
     public static final int VERTICAL = 1;
 
-    static void calculateLinesAndChildPosition(List<LineDefinition> lines) {
+    public static void calculateLinesAndChildPosition(List<LineDefinition> lines) {
         int prevLinesThickness = 0;
         final int linesCount = lines.size();
         for (int i = 0; i < linesCount; i++) {
@@ -18,18 +18,17 @@ public class Common {
             line.setLineStartThickness(prevLinesThickness);
             prevLinesThickness += line.getLineThickness();
             int prevChildThickness = 0;
-            final List<View> childViews = line.getViews();
+            final List<ViewDefinition> childViews = line.getViews();
             final int childCount = childViews.size();
             for (int j = 0; j < childCount; j++) {
-                View child = childViews.get(j);
-                LayoutParams lp = (LayoutParams) child.getLayoutParams();
-                lp.setInlineStartLength(prevChildThickness);
-                prevChildThickness += lp.getLength() + lp.getSpacingLength();
+                ViewDefinition child = childViews.get(j);
+                child.setInlineStartLength(prevChildThickness);
+                prevChildThickness += child.getLength() + child.getSpacingLength();
             }
         }
     }
 
-    static void applyGravityToLines(List<LineDefinition> lines, int realControlLength, int realControlThickness, LayoutConfiguration config) {
+    public static void applyGravityToLines(List<LineDefinition> lines, int realControlLength, int realControlThickness, ConfigDefinition config) {
         final int linesCount = lines.size();
         if (linesCount <= 0) {
             return;
@@ -67,11 +66,13 @@ public class Common {
             child.setLineStartThickness(child.getLineStartThickness() + result.top);
             child.setLength(result.width());
             child.setThickness(result.height());
+
+            applyGravityToLine(child, config);
         }
     }
 
-    static void applyGravityToLine(LineDefinition line, LayoutConfiguration config) {
-        final List<View> views = line.getViews();
+    public static void applyGravityToLine(LineDefinition line, ConfigDefinition config) {
+        final List<ViewDefinition> views = line.getViews();
         final int viewCount = views.size();
         if (viewCount <= 0) {
             return;
@@ -79,21 +80,17 @@ public class Common {
 
         float totalWeight = 0;
         for (int i = 0; i < viewCount; i++) {
-            final View prev = views.get(i);
-            LayoutParams plp = (LayoutParams) prev.getLayoutParams();
-            totalWeight += getWeight(plp, config);
+            final ViewDefinition child = views.get(i);
+            totalWeight += getWeight(child, config);
         }
 
-        View lastChild = views.get(viewCount - 1);
-        LayoutParams lastChildLayoutParams = (LayoutParams) lastChild.getLayoutParams();
-        int excessLength = line.getLineLength() - (lastChildLayoutParams.getLength() + lastChildLayoutParams.getSpacingLength() + lastChildLayoutParams.getInlineStartLength());
+        ViewDefinition lastChild = views.get(viewCount - 1);
+        int excessLength = line.getLineLength() - (lastChild.getLength() + lastChild.getSpacingLength() + lastChild.getInlineStartLength());
         int excessOffset = 0;
         for (int i = 0; i < viewCount; i++) {
-            final View child = views.get(i);
-            LayoutParams layoutParams = (LayoutParams) child.getLayoutParams();
-
-            float weight = getWeight(layoutParams, config);
-            int gravity = getGravity(layoutParams, config);
+            final ViewDefinition child = views.get(i);
+            float weight = getWeight(child, config);
+            int gravity = getGravity(child, config);
             int extraLength;
             if (totalWeight == 0) {
                 extraLength = excessLength / viewCount;
@@ -101,8 +98,8 @@ public class Common {
                 extraLength = Math.round(excessLength * weight / totalWeight);
             }
 
-            final int childLength = layoutParams.getLength() + layoutParams.getSpacingLength();
-            final int childThickness = layoutParams.getThickness() + layoutParams.getSpacingThickness();
+            final int childLength = child.getLength() + child.getSpacingLength();
+            final int childThickness = child.getThickness() + child.getSpacingThickness();
 
             Rect container = new Rect();
             container.top = 0;
@@ -114,14 +111,14 @@ public class Common {
             Gravity.apply(gravity, childLength, childThickness, container, result);
 
             excessOffset += extraLength;
-            layoutParams.setInlineStartLength(result.left + layoutParams.getInlineStartLength());
-            layoutParams.setInlineStartThickness(result.top);
-            layoutParams.setLength(result.width() - layoutParams.getSpacingLength());
-            layoutParams.setThickness(result.height() - layoutParams.getSpacingThickness());
+            child.setInlineStartLength(result.left + child.getInlineStartLength());
+            child.setInlineStartThickness(result.top);
+            child.setLength(result.width() - child.getSpacingLength());
+            child.setThickness(result.height() - child.getSpacingThickness());
         }
     }
 
-    static int findSize(int modeSize, int controlMaxSize, int contentSize) {
+    public static int findSize(int modeSize, int controlMaxSize, int contentSize) {
         int realControlLength;
         switch (modeSize) {
             case View.MeasureSpec.UNSPECIFIED:
@@ -140,18 +137,18 @@ public class Common {
         return realControlLength;
     }
 
-    private static float getWeight(LayoutParams lp, LayoutConfiguration config) {
-        return lp.weightSpecified() ? lp.getWeight() : config.getWeightDefault();
+    private static float getWeight(ViewDefinition child, ConfigDefinition config) {
+        return child.weightSpecified() ? child.getWeight() : config.getWeightDefault();
     }
 
 
-    private static int getGravity(LayoutParams lp, LayoutConfiguration config) {
+    private static int getGravity(ViewDefinition child, ConfigDefinition config) {
         int parentGravity = config.getGravity();
 
         int childGravity;
         // get childGravity of child view (if exists)
-        if (lp != null && lp.gravitySpecified()) {
-            childGravity = lp.getGravity();
+        if (child != null && child.gravitySpecified()) {
+            childGravity = child.getGravity();
         } else {
             childGravity = parentGravity;
         }
@@ -179,11 +176,11 @@ public class Common {
     }
 
 
-    static int getGravityFromRelative(int childGravity, LayoutConfiguration config) {
+    public static int getGravityFromRelative(int childGravity, ConfigDefinition config) {
         // swap directions for vertical non relative view
         // if it is relative, then START is TOP, and we do not need to switch it here.
         // it will be switched later on onMeasure stage when calculations will be with length and thickness
-        if (config.getOrientation() == Common.VERTICAL && (childGravity & Gravity.RELATIVE_LAYOUT_DIRECTION) == 0) {
+        if (config.getOrientation() == CommonLogic.VERTICAL && (childGravity & Gravity.RELATIVE_LAYOUT_DIRECTION) == 0) {
             int horizontalGravity = childGravity;
             childGravity = 0;
             childGravity |= (horizontalGravity & Gravity.HORIZONTAL_GRAVITY_MASK) >> Gravity.AXIS_X_SHIFT << Gravity.AXIS_Y_SHIFT;
@@ -201,79 +198,28 @@ public class Common {
         return childGravity;
     }
 
-    static void fillLines(ChildProvider childProvider, List<LineDefinition> lines, LayoutConfiguration config, int controlMaxLength, boolean checkCanFit) {
-        lines.clear();
-        LineDefinition currentLine = new LineDefinition(controlMaxLength);
+    public static void fillLines(List<ViewDefinition> views, List<LineDefinition> lines, ConfigDefinition config) {
+        LineDefinition currentLine = new LineDefinition(config);
         lines.add(currentLine);
-        final int count = childProvider.provideChildCount();
+        final int count = views.size();
         for (int i = 0; i < count; i++) {
-            final View child = childProvider.provideChildAt(i);
-            if (child.getVisibility() == View.GONE) {
-                continue;
-            }
+            final ViewDefinition child = views.get(i);
 
-            final LayoutParams lp = (LayoutParams) child.getLayoutParams();
-
-            if (config.getOrientation() == Common.HORIZONTAL) {
-                lp.setLength(child.getMeasuredWidth());
-                lp.setThickness(child.getMeasuredHeight());
-            } else {
-                lp.setLength(child.getMeasuredHeight());
-                lp.setThickness(child.getMeasuredWidth());
-            }
-
-            boolean newLine = lp.isNewLine() || (checkCanFit && !currentLine.canFit(child));
+            boolean newLine = child.isNewLine() || (config.isCheckCanFit() && !currentLine.canFit(child));
             if (newLine) {
-                currentLine = new LineDefinition(controlMaxLength);
-                if (config.getOrientation() == Common.VERTICAL && config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+                currentLine = new LineDefinition(config);
+                if (config.getOrientation() == CommonLogic.VERTICAL && config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
                     lines.add(0, currentLine);
                 } else {
                     lines.add(currentLine);
                 }
             }
 
-            if (config.getOrientation() == Common.HORIZONTAL && config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
+            if (config.getOrientation() == CommonLogic.HORIZONTAL && config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {
                 currentLine.addView(0, child);
             } else {
                 currentLine.addView(child);
             }
         }
-    }
-
-    interface LayoutParams {
-        int getLength();
-
-        void setLength(int length);
-
-        int getSpacingLength();
-
-        boolean isNewLine();
-
-        int getThickness();
-
-        void setThickness(int thickness);
-
-        int getSpacingThickness();
-
-        int getInlineStartLength();
-
-        void setInlineStartLength(int prevChildThickness);
-
-        int getGravity();
-
-        float getWeight();
-
-        void setInlineStartThickness(int inlineStartThickness);
-
-        boolean gravitySpecified();
-
-        boolean weightSpecified();
-    }
-
-    interface ChildProvider {
-
-        int provideChildCount();
-
-        View provideChildAt(int i);
     }
 }

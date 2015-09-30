@@ -9,6 +9,10 @@ import android.view.Gravity;
 import android.view.View;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
+import org.apmem.tools.layouts.logic.CommonLogic;
+import org.apmem.tools.layouts.logic.ConfigDefinition;
+import org.apmem.tools.layouts.logic.LineDefinition;
+import org.apmem.tools.layouts.logic.ViewDefinition;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -16,28 +20,46 @@ import java.util.List;
 
 public class FlowLayout extends ViewGroup {
 
-    private final LayoutConfiguration config;
-    private final ChildProvider childProvider = new ChildProvider();
+    private final ConfigDefinition config;
     List<LineDefinition> lines = new ArrayList<>();
+    List<ViewDefinition> views = new ArrayList<>();
 
     public FlowLayout(Context context) {
         super(context);
-        this.config = new LayoutConfiguration(context, null);
+        this.config = new ConfigDefinition();
+        readStyleParameters(context, null);
     }
 
     public FlowLayout(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
-        this.config = new LayoutConfiguration(context, attributeSet);
+        this.config = new ConfigDefinition();
+        readStyleParameters(context, attributeSet);
     }
 
     public FlowLayout(Context context, AttributeSet attributeSet, int defStyle) {
         super(context, attributeSet, defStyle);
-        this.config = new LayoutConfiguration(context, attributeSet);
+        this.config = new ConfigDefinition();
+        readStyleParameters(context, attributeSet);
+    }
+
+    private void readStyleParameters(Context context, AttributeSet attributeSet) {
+        TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
+        try {
+            this.config.setOrientation(a.getInteger(R.styleable.FlowLayout_android_orientation, CommonLogic.HORIZONTAL));
+            this.config.setDebugDraw(a.getBoolean(R.styleable.FlowLayout_debugDraw, false));
+            this.config.setWeightDefault(a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f));
+            this.config.setGravity(a.getInteger(R.styleable.FlowLayout_android_gravity, Gravity.NO_GRAVITY));
+            this.config.setLayoutDirection(a.getInteger(R.styleable.FlowLayout_layoutDirection, View.LAYOUT_DIRECTION_LTR));
+        } finally {
+            a.recycle();
+        }
     }
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         final int count = this.getChildCount();
+        views.clear();
+        lines.clear();
         for (int i = 0; i < count; i++) {
             final View child = this.getChildAt(i);
             if (child.getVisibility() == GONE) {
@@ -46,26 +68,32 @@ public class FlowLayout extends ViewGroup {
 
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
 
-            lp.orientation = this.config.getOrientation();
-
             child.measure(
                     getChildMeasureSpec(widthMeasureSpec, this.getPaddingLeft() + this.getPaddingRight(), lp.width),
                     getChildMeasureSpec(heightMeasureSpec, this.getPaddingTop() + this.getPaddingBottom(), lp.height)
             );
+
+            ViewDefinition view = new ViewDefinition(this.config, child);
+            view.setWidth(child.getMeasuredWidth());
+            view.setHeight(child.getMeasuredHeight());
+            view.setNewLine(lp.isNewLine());
+            view.setGravity(lp.getGravity());
+            view.setWeight(lp.getWeight());
+            view.setMargins(lp.leftMargin, lp.topMargin, lp.rightMargin, lp.bottomMargin);
+            views.add(view);
         }
 
-        final int sizeWidth = MeasureSpec.getSize(widthMeasureSpec) - this.getPaddingRight() - this.getPaddingLeft();
-        final int sizeHeight = MeasureSpec.getSize(heightMeasureSpec) - this.getPaddingTop() - this.getPaddingBottom();
         final int modeWidth = MeasureSpec.getMode(widthMeasureSpec);
         final int modeHeight = MeasureSpec.getMode(heightMeasureSpec);
-        final int controlMaxLength = this.config.getOrientation() == Common.HORIZONTAL ? sizeWidth : sizeHeight;
-        final int controlMaxThickness = this.config.getOrientation() == Common.HORIZONTAL ? sizeHeight : sizeWidth;
-        final int modeLength = this.config.getOrientation() == Common.HORIZONTAL ? modeWidth : modeHeight;
-        final int modeThickness = this.config.getOrientation() == Common.HORIZONTAL ? modeHeight : modeWidth;
+        final int modeLength = this.config.getOrientation() == CommonLogic.HORIZONTAL ? modeWidth : modeHeight;
+        final int modeThickness = this.config.getOrientation() == CommonLogic.HORIZONTAL ? modeHeight : modeWidth;
 
-        Common.fillLines(childProvider, lines, config, controlMaxLength, modeLength != View.MeasureSpec.UNSPECIFIED);
+        this.config.setMaxWidth(MeasureSpec.getSize(widthMeasureSpec) - this.getPaddingRight() - this.getPaddingLeft());
+        this.config.setMaxHeight(MeasureSpec.getSize(heightMeasureSpec) - this.getPaddingTop() - this.getPaddingBottom());
+        this.config.setCheckCanFit(modeLength != View.MeasureSpec.UNSPECIFIED);
 
-        Common.calculateLinesAndChildPosition(lines);
+        CommonLogic.fillLines(views, lines, config);
+        CommonLogic.calculateLinesAndChildPosition(lines);
 
         int contentLength = 0;
         final int linesCount = lines.size();
@@ -76,22 +104,20 @@ public class FlowLayout extends ViewGroup {
 
         LineDefinition currentLine = lines.get(lines.size() - 1);
         int contentThickness = currentLine.getLineStartThickness() + currentLine.getLineThickness();
+        int realControlLength = CommonLogic.findSize(modeLength, this.config.getMaxLength(), contentLength);
+        int realControlThickness = CommonLogic.findSize(modeThickness, this.config.getMaxThickness(), contentThickness);
 
-        int realControlLength = Common.findSize(modeLength, controlMaxLength, contentLength);
-        int realControlThickness = Common.findSize(modeHeight, controlMaxThickness, contentThickness);
-
-        Common.applyGravityToLines(lines, realControlLength, realControlThickness, config);
+        CommonLogic.applyGravityToLines(lines, realControlLength, realControlThickness, config);
 
         for (int i = 0; i < linesCount; i++) {
             LineDefinition line = lines.get(i);
-            Common.applyGravityToLine(line, config);
             applyPositionsToViews(line);
         }
 
         /* need to take padding into account */
         int totalControlWidth = this.getPaddingLeft() + this.getPaddingRight();
         int totalControlHeight = this.getPaddingBottom() + this.getPaddingTop();
-        if (this.config.getOrientation() == Common.HORIZONTAL) {
+        if (this.config.getOrientation() == CommonLogic.HORIZONTAL) {
             totalControlWidth += contentLength;
             totalControlHeight += contentThickness;
         } else {
@@ -102,39 +128,36 @@ public class FlowLayout extends ViewGroup {
     }
 
     private void applyPositionsToViews(LineDefinition line) {
-        final List<View> childViews = line.getViews();
+        final List<ViewDefinition> childViews = line.getViews();
         final int childCount = childViews.size();
         for (int i = 0; i < childCount; i++) {
-            final View child = childViews.get(i);
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            if (this.config.getOrientation() == Common.HORIZONTAL) {
-                lp.setPosition(
-                        this.getPaddingLeft() + line.getLineStartLength() + lp.getInlineStartLength(),
-                        this.getPaddingTop() + line.getLineStartThickness() + lp.getInlineStartThickness());
-                child.measure(
-                        MeasureSpec.makeMeasureSpec(lp.getLength(), MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(lp.getThickness(), MeasureSpec.EXACTLY)
-                );
-            } else {
-                lp.setPosition(
-                        this.getPaddingLeft() + line.getLineStartThickness() + lp.getInlineStartThickness(),
-                        this.getPaddingTop() + line.getLineStartLength() + lp.getInlineStartLength());
-                child.measure(
-                        MeasureSpec.makeMeasureSpec(lp.getThickness(), MeasureSpec.EXACTLY),
-                        MeasureSpec.makeMeasureSpec(lp.getLength(), MeasureSpec.EXACTLY)
-                );
-            }
+            final ViewDefinition child = childViews.get(i);
+            final View view = child.getView();
+            view.measure(
+                    MeasureSpec.makeMeasureSpec(child.getWidth(), MeasureSpec.EXACTLY),
+                    MeasureSpec.makeMeasureSpec(child.getHeight(), MeasureSpec.EXACTLY)
+            );
         }
     }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
-        final int count = this.getChildCount();
-        for (int i = 0; i < count; i++) {
-            View child = this.getChildAt(i);
-            LayoutParams lp = (LayoutParams) child.getLayoutParams();
-            child.layout(lp.x + lp.leftMargin, lp.y + lp.topMargin,
-                    lp.x + lp.leftMargin + child.getMeasuredWidth(), lp.y + lp.topMargin + child.getMeasuredHeight());
+        final int linesCount = this.lines.size();
+        for (int i = 0; i < linesCount; i++) {
+            final LineDefinition line = this.lines.get(i);
+
+            final int count = line.getViews().size();
+            for (int j = 0; j < count; j++) {
+                ViewDefinition child = line.getViews().get(j);
+                View view = child.getView();
+                LayoutParams lp = (LayoutParams) view.getLayoutParams();
+                view.layout(
+                        this.getPaddingLeft() + line.getX() + child.getInlineX() + lp.leftMargin,
+                        this.getPaddingTop() + line.getY() + child.getInlineY() + lp.topMargin,
+                        this.getPaddingLeft() + line.getX() + child.getInlineX() + lp.leftMargin + child.getWidth(),
+                        this.getPaddingTop() + line.getY() + child.getInlineY() + lp.topMargin + child.getHeight()
+                );
+            }
         }
     }
 
@@ -208,7 +231,7 @@ public class FlowLayout extends ViewGroup {
         }
 
         if (lp.isNewLine()) {
-            if (this.config.getOrientation() == Common.HORIZONTAL) {
+            if (this.config.getOrientation() == CommonLogic.HORIZONTAL) {
                 float x = child.getLeft();
                 float y = child.getTop() + child.getHeight() / 2.0f;
                 canvas.drawLine(x, y - 6.0f, x, y + 6.0f, newLinePaint);
@@ -292,7 +315,7 @@ public class FlowLayout extends ViewGroup {
         this.requestLayout();
     }
 
-    public static class LayoutParams extends MarginLayoutParams implements Common.LayoutParams {
+    public static class LayoutParams extends MarginLayoutParams {
         @ViewDebug.ExportedProperty(mapping = {
                 @ViewDebug.IntToString(from = Gravity.NO_GRAVITY, to = "NONE"),
                 @ViewDebug.IntToString(from = Gravity.TOP, to = "TOP"),
@@ -310,13 +333,6 @@ public class FlowLayout extends ViewGroup {
         private boolean newLine = false;
         private int gravity = Gravity.NO_GRAVITY;
         private float weight = -1.0f;
-        private int inlineStartLength;
-        private int length;
-        private int thickness;
-        private int inlineStartThickness;
-        private int x;
-        private int y;
-        private int orientation;
 
         public LayoutParams(Context context, AttributeSet attributeSet) {
             super(context, attributeSet);
@@ -331,14 +347,6 @@ public class FlowLayout extends ViewGroup {
             super(layoutParams);
         }
 
-        public boolean gravitySpecified() {
-            return this.gravity != Gravity.NO_GRAVITY;
-        }
-
-        public boolean weightSpecified() {
-            return this.weight >= 0;
-        }
-
         private void readStyleParameters(Context context, AttributeSet attributeSet) {
             TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout_LayoutParams);
             try {
@@ -348,68 +356,6 @@ public class FlowLayout extends ViewGroup {
             } finally {
                 a.recycle();
             }
-        }
-
-
-        void setPosition(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        public int getInlineStartLength() {
-            return inlineStartLength;
-        }
-
-        public void setInlineStartLength(int inlineStartLength) {
-            this.inlineStartLength = inlineStartLength;
-        }
-
-        public int getLength() {
-            return length;
-        }
-
-        public void setLength(int length) {
-            this.length = length;
-        }
-
-        public int getThickness() {
-            return thickness;
-        }
-
-        public void setThickness(int thickness) {
-            this.thickness = thickness;
-        }
-
-        int getInlineStartThickness() {
-            return inlineStartThickness;
-        }
-
-        public void setInlineStartThickness(int inlineStartThickness) {
-            this.inlineStartThickness = inlineStartThickness;
-        }
-
-        public int getSpacingLength() {
-            if (orientation == Common.HORIZONTAL) {
-                return this.leftMargin + this.rightMargin;
-            } else {
-                return this.topMargin + this.bottomMargin;
-            }
-        }
-
-        public int getSpacingThickness() {
-            if (orientation == Common.HORIZONTAL) {
-                return this.topMargin + this.bottomMargin;
-            } else {
-                return this.leftMargin + this.rightMargin;
-            }
-        }
-
-        public int getX() {
-            return x;
-        }
-
-        public int getY() {
-            return y;
         }
 
         public int getGravity() {
@@ -434,18 +380,6 @@ public class FlowLayout extends ViewGroup {
 
         public void setNewLine(boolean newLine) {
             this.newLine = newLine;
-        }
-    }
-
-    private class ChildProvider implements Common.ChildProvider {
-        @Override
-        public int provideChildCount() {
-            return getChildCount();
-        }
-
-        @Override
-        public View provideChildAt(int i) {
-            return getChildAt(i);
         }
     }
 }

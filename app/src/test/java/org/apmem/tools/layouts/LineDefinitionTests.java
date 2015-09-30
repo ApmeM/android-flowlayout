@@ -2,6 +2,9 @@ package org.apmem.tools.layouts;
 
 import android.view.View;
 import junit.framework.Assert;
+import org.apmem.tools.layouts.logic.ConfigDefinition;
+import org.apmem.tools.layouts.logic.LineDefinition;
+import org.apmem.tools.layouts.logic.ViewDefinition;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -13,10 +16,13 @@ import org.robolectric.annotation.Config;
 public class LineDefinitionTests {
     @Test
     public void AddView_IncreaseLineLengthForChildLength() {
-        View view1 = CreateView(12, 34);
-        View view2 = CreateView(56, 78);
+        ViewDefinition view1 = CreateView(12, 34);
+        ViewDefinition view2 = CreateView(56, 78);
 
-        LineDefinition def = new LineDefinition(100);
+        ConfigDefinition config = new ConfigDefinition();
+        config.setMaxWidth(100);
+        LineDefinition def = new LineDefinition(config);
+
         def.addView(view1);
         def.addView(view2);
 
@@ -25,10 +31,13 @@ public class LineDefinitionTests {
 
     @Test
     public void AddView_AddViewIntoList() {
-        View view1 = CreateView(12, 34);
-        View view2 = CreateView(56, 78);
+        ViewDefinition view1 = CreateView(12, 34);
+        ViewDefinition view2 = CreateView(56, 78);
 
-        LineDefinition def = new LineDefinition(100);
+        ConfigDefinition config = new ConfigDefinition();
+        config.setMaxWidth(100);
+        LineDefinition def = new LineDefinition(config);
+
         def.addView(view1);
         def.addView(view2);
 
@@ -38,10 +47,13 @@ public class LineDefinitionTests {
 
     @Test
     public void AddView_SetThicknessToMaxBetweenThickness() {
-        View view1 = CreateView(12, 34);
-        View view2 = CreateView(56, 78);
+        ViewDefinition view1 = CreateView(12, 34);
+        ViewDefinition view2 = CreateView(56, 78);
 
-        LineDefinition def = new LineDefinition(100);
+        ConfigDefinition config = new ConfigDefinition();
+        config.setMaxWidth(100);
+        LineDefinition def = new LineDefinition(config);
+
         def.addView(view1);
         def.addView(view2);
 
@@ -50,15 +62,16 @@ public class LineDefinitionTests {
 
     @Test
     public void AddView_TakesLayoutMarginsIntoAccount() {
-        View view1 = CreateView(12, 34);
-        View view2 = CreateView(56, 78);
+        ViewDefinition view1 = CreateView(12, 34);
+        ViewDefinition view2 = CreateView(56, 78);
 
-        FlowLayout.LayoutParams lp1 = (FlowLayout.LayoutParams) view1.getLayoutParams();
-        FlowLayout.LayoutParams lp2 = (FlowLayout.LayoutParams) view2.getLayoutParams();
-        lp1.setMargins(1, 1, 1, 1);
-        lp2.setMargins(1, 1, 1, 1);
+        view1.setMargins(1, 1, 1, 1);
+        view2.setMargins(1, 1, 1, 1);
 
-        LineDefinition def = new LineDefinition(100);
+        ConfigDefinition config = new ConfigDefinition();
+        config.setMaxWidth(100);
+        LineDefinition def = new LineDefinition(config);
+
         def.addView(view1);
         def.addView(view2);
 
@@ -68,10 +81,13 @@ public class LineDefinitionTests {
 
     @Test
     public void CanFit_LengthLessThenRemainingIsOk() {
-        View view1 = CreateView(12, 34);
-        View view2 = CreateView(56, 78);
+        ViewDefinition view1 = CreateView(12, 34);
+        ViewDefinition view2 = CreateView(56, 78);
 
-        LineDefinition def = new LineDefinition(100);
+        ConfigDefinition config = new ConfigDefinition();
+        config.setMaxWidth(100);
+        LineDefinition def = new LineDefinition(config);
+
         def.addView(view1);
         def.addView(view2);
 
@@ -82,10 +98,13 @@ public class LineDefinitionTests {
 
     @Test
     public void CanFit_LengthMoreThenRemainingIsNotOk() {
-        View view1 = CreateView(12, 34);
-        View view2 = CreateView(56, 78);
+        ViewDefinition view1 = CreateView(12, 34);
+        ViewDefinition view2 = CreateView(56, 78);
 
-        LineDefinition def = new LineDefinition(100);
+        ConfigDefinition config = new ConfigDefinition();
+        config.setMaxWidth(100);
+        LineDefinition def = new LineDefinition(config);
+
         def.addView(view1);
         def.addView(view2);
 
@@ -96,15 +115,15 @@ public class LineDefinitionTests {
 
     @Test
     public void CanFit_TakesMarginIntoAccount() {
-        View view1 = CreateView(12, 34);
-        View view2 = CreateView(56, 78);
+        ViewDefinition view1 = CreateView(12, 34);
+        ViewDefinition view2 = CreateView(56, 78);
 
-        FlowLayout.LayoutParams lp1 = (FlowLayout.LayoutParams) view1.getLayoutParams();
-        FlowLayout.LayoutParams lp2 = (FlowLayout.LayoutParams) view2.getLayoutParams();
-        lp1.setMargins(8, 1, 1, 1);
-        lp2.setMargins(8, 1, 1, 1);
+        view1.setMargins(8, 1, 1, 1);
+        view2.setMargins(8, 1, 1, 1);
 
-        LineDefinition def = new LineDefinition(100);
+        ConfigDefinition config = new ConfigDefinition();
+        config.setMaxWidth(100);
+        LineDefinition def = new LineDefinition(config);
         def.addView(view1);
         def.addView(view2);
 
@@ -113,12 +132,10 @@ public class LineDefinitionTests {
         Assert.assertFalse(canFit);
     }
 
-    private View CreateView(int length, int thickness) {
-        View view = Mockito.mock(View.class);
-        FlowLayout.LayoutParams lp1 = new FlowLayout.LayoutParams(length, thickness);
-        lp1.setLength(length);
-        lp1.setThickness(thickness);
-        Mockito.when(view.getLayoutParams()).thenReturn(lp1);
+    private ViewDefinition CreateView(int length, int thickness) {
+        ViewDefinition view = new ViewDefinition(new ConfigDefinition(), null);
+        view.setLength(length);
+        view.setThickness(thickness);
         return view;
     }
 

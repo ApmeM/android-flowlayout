@@ -1,37 +1,25 @@
-package org.apmem.tools.layouts;
+package org.apmem.tools.layouts.logic;
 
-import android.content.Context;
-import android.content.res.TypedArray;
-import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 
-class LayoutConfiguration {
-    private int orientation = Common.HORIZONTAL;
+public class ConfigDefinition {
+    private int orientation = CommonLogic.HORIZONTAL;
     private boolean debugDraw = false;
     private float weightDefault = 0;
     private int gravity = Gravity.LEFT | Gravity.TOP;
     private int layoutDirection = View.LAYOUT_DIRECTION_LTR;
+    private int maxWidth;
+    private int maxHeight;
+    private boolean checkCanFit;
 
-    public LayoutConfiguration(Context context, AttributeSet attributeSet) {
-        TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
-        try {
-            this.setOrientation(a.getInteger(R.styleable.FlowLayout_android_orientation, Common.HORIZONTAL));
-            this.setDebugDraw(a.getBoolean(R.styleable.FlowLayout_debugDraw, false));
-            this.setWeightDefault(a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f));
-            this.setGravity(a.getInteger(R.styleable.FlowLayout_android_gravity, Gravity.NO_GRAVITY));
-            this.setLayoutDirection(a.getInteger(R.styleable.FlowLayout_layoutDirection, View.LAYOUT_DIRECTION_LTR));
-        } finally {
-            a.recycle();
-        }
-    }
-
-    public LayoutConfiguration() {
-        this.setOrientation(Common.HORIZONTAL);
+    public ConfigDefinition() {
+        this.setOrientation(CommonLogic.HORIZONTAL);
         this.setDebugDraw(false);
         this.setWeightDefault(0.0f);
         this.setGravity(Gravity.NO_GRAVITY);
         this.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
+        this.setCheckCanFit(true);
     }
 
     public int getOrientation() {
@@ -39,10 +27,10 @@ class LayoutConfiguration {
     }
 
     public void setOrientation(int orientation) {
-        if (orientation == Common.VERTICAL) {
+        if (orientation == CommonLogic.VERTICAL) {
             this.orientation = orientation;
         } else {
-            this.orientation = Common.HORIZONTAL;
+            this.orientation = CommonLogic.HORIZONTAL;
         }
     }
 
@@ -80,5 +68,29 @@ class LayoutConfiguration {
         } else {
             this.layoutDirection = View.LAYOUT_DIRECTION_LTR;
         }
+    }
+
+    public void setMaxWidth(int maxWidth) {
+        this.maxWidth = maxWidth;
+    }
+
+    public void setMaxHeight(int maxHeight) {
+        this.maxHeight = maxHeight;
+    }
+
+    public int getMaxLength() {
+        return this.orientation == CommonLogic.HORIZONTAL ? this.maxWidth : this.maxHeight;
+    }
+
+    public int getMaxThickness() {
+        return this.orientation == CommonLogic.HORIZONTAL ? this.maxHeight : this.maxWidth;
+    }
+
+    public void setCheckCanFit(boolean checkCanFit) {
+        this.checkCanFit = checkCanFit;
+    }
+
+    public boolean isCheckCanFit() {
+        return checkCanFit;
     }
 }

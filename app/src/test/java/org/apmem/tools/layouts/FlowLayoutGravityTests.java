@@ -31,9 +31,10 @@ public class FlowLayoutGravityTests {
                 View.MeasureSpec.makeMeasureSpec(50, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(60, View.MeasureSpec.EXACTLY)
         );
+        layout.layout(0, 0, 0, 0);
 
-        Assert.assertEquals(16, lp.getX());
-        Assert.assertEquals(14, lp.getY());
+        Assert.assertEquals(16 + 1, btn.getLeft());
+        Assert.assertEquals(14 + 2, btn.getTop());
     }
     @Test
     public void MoveChildToCenter() {
@@ -50,9 +51,10 @@ public class FlowLayoutGravityTests {
                 View.MeasureSpec.makeMeasureSpec(50, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(60, View.MeasureSpec.EXACTLY)
         );
+        layout.layout(0, 0, 0, 0);
 
-        Assert.assertEquals(8, lp.getX());
-        Assert.assertEquals(7, lp.getY());
+        Assert.assertEquals(8 + 1, btn.getLeft());
+        Assert.assertEquals(7 + 2, btn.getTop());
     }
 
     @Test
@@ -70,8 +72,9 @@ public class FlowLayoutGravityTests {
                 View.MeasureSpec.makeMeasureSpec(50, View.MeasureSpec.EXACTLY),
                 View.MeasureSpec.makeMeasureSpec(60, View.MeasureSpec.EXACTLY)
         );
+        layout.layout(0, 0, 0, 0);
 
-        Assert.assertEquals(46, lp.getLength());
-        Assert.assertEquals(54, lp.getThickness());
+        Assert.assertEquals(46, btn.getWidth());
+        Assert.assertEquals(54, btn.getHeight());
     }
 }
