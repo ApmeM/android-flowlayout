@@ -12,6 +12,8 @@ public class ConfigDefinition {
     private int maxWidth;
     private int maxHeight;
     private boolean checkCanFit;
+    private int widthMode;
+    private int heightMode;
 
     public ConfigDefinition() {
         this.setOrientation(CommonLogic.HORIZONTAL);
@@ -92,5 +94,21 @@ public class ConfigDefinition {
 
     public boolean isCheckCanFit() {
         return checkCanFit;
+    }
+
+    public void setWidthMode(int widthMode) {
+        this.widthMode = widthMode;
+    }
+
+    public void setHeightMode(int heightMode) {
+        this.heightMode = heightMode;
+    }
+
+    public int getLengthMode() {
+        return this.orientation == CommonLogic.HORIZONTAL ? this.widthMode : this.heightMode;
+    }
+
+    public int getThicknessMode() {
+        return this.orientation == CommonLogic.HORIZONTAL ? this.heightMode : this.widthMode;
     }
 }

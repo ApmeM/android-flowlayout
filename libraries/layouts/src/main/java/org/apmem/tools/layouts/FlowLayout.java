@@ -83,14 +83,11 @@ public class FlowLayout extends ViewGroup {
             views.add(view);
         }
 
-        final int modeWidth = MeasureSpec.getMode(widthMeasureSpec);
-        final int modeHeight = MeasureSpec.getMode(heightMeasureSpec);
-        final int modeLength = this.config.getOrientation() == CommonLogic.HORIZONTAL ? modeWidth : modeHeight;
-        final int modeThickness = this.config.getOrientation() == CommonLogic.HORIZONTAL ? modeHeight : modeWidth;
-
         this.config.setMaxWidth(MeasureSpec.getSize(widthMeasureSpec) - this.getPaddingRight() - this.getPaddingLeft());
         this.config.setMaxHeight(MeasureSpec.getSize(heightMeasureSpec) - this.getPaddingTop() - this.getPaddingBottom());
-        this.config.setCheckCanFit(modeLength != View.MeasureSpec.UNSPECIFIED);
+        this.config.setWidthMode(MeasureSpec.getMode(widthMeasureSpec));
+        this.config.setHeightMode(MeasureSpec.getMode(heightMeasureSpec));
+        this.config.setCheckCanFit(this.config.getLengthMode() != View.MeasureSpec.UNSPECIFIED);
 
         CommonLogic.fillLines(views, lines, config);
         CommonLogic.calculateLinesAndChildPosition(lines);
@@ -104,8 +101,8 @@ public class FlowLayout extends ViewGroup {
 
         LineDefinition currentLine = lines.get(lines.size() - 1);
         int contentThickness = currentLine.getLineStartThickness() + currentLine.getLineThickness();
-        int realControlLength = CommonLogic.findSize(modeLength, this.config.getMaxLength(), contentLength);
-        int realControlThickness = CommonLogic.findSize(modeThickness, this.config.getMaxThickness(), contentThickness);
+        int realControlLength = CommonLogic.findSize(this.config.getLengthMode(), this.config.getMaxLength(), contentLength);
+        int realControlThickness = CommonLogic.findSize(this.config.getThicknessMode(), this.config.getMaxThickness(), contentThickness);
 
         CommonLogic.applyGravityToLines(lines, realControlLength, realControlThickness, config);
 

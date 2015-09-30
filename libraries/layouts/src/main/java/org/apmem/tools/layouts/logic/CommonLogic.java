@@ -119,22 +119,22 @@ public class CommonLogic {
     }
 
     public static int findSize(int modeSize, int controlMaxSize, int contentSize) {
-        int realControlLength;
+        int realControlSize;
         switch (modeSize) {
             case View.MeasureSpec.UNSPECIFIED:
-                realControlLength = contentSize;
+                realControlSize = contentSize;
                 break;
             case View.MeasureSpec.AT_MOST:
-                realControlLength = Math.min(contentSize, controlMaxSize);
+                realControlSize = Math.min(contentSize, controlMaxSize);
                 break;
             case View.MeasureSpec.EXACTLY:
-                realControlLength = controlMaxSize;
+                realControlSize = controlMaxSize;
                 break;
             default:
-                realControlLength = contentSize;
+                realControlSize = contentSize;
                 break;
         }
-        return realControlLength;
+        return realControlSize;
     }
 
     private static float getWeight(ViewDefinition child, ConfigDefinition config) {

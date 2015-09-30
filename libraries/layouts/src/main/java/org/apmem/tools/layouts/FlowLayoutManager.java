@@ -77,6 +77,8 @@ public class FlowLayoutManager extends RecyclerView.LayoutManager {
 
         this.config.setMaxWidth(this.getWidth() - this.getPaddingRight() - this.getPaddingLeft());
         this.config.setMaxHeight(this.getHeight() - this.getPaddingTop() - this.getPaddingBottom());
+        this.config.setWidthMode(View.MeasureSpec.EXACTLY);
+        this.config.setHeightMode(View.MeasureSpec.EXACTLY);
         this.config.setCheckCanFit(true);
 
         CommonLogic.fillLines(views, lines, config);
@@ -91,8 +93,8 @@ public class FlowLayoutManager extends RecyclerView.LayoutManager {
 
         LineDefinition currentLine = lines.get(lines.size() - 1);
         int contentThickness = currentLine.getLineStartThickness() + currentLine.getLineThickness();
-        int realControlLength = CommonLogic.findSize(ViewGroup.LayoutParams.WRAP_CONTENT, this.config.getMaxLength(), contentLength);
-        int realControlThickness = CommonLogic.findSize(ViewGroup.LayoutParams.WRAP_CONTENT, this.config.getMaxThickness(), contentThickness);
+        int realControlLength = CommonLogic.findSize(this.config.getLengthMode(), this.config.getMaxLength(), contentLength);
+        int realControlThickness = CommonLogic.findSize(this.config.getThicknessMode(), this.config.getMaxThickness(), contentThickness);
 
         CommonLogic.applyGravityToLines(lines, realControlLength, realControlThickness, config);
 
