@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import org.apmem.tools.layouts.Common;
 import org.apmem.tools.layouts.FlowLayout;
 
 public class FlowLayoutActivity extends Activity {
@@ -28,7 +29,7 @@ public class FlowLayoutActivity extends Activity {
             @Override
             public void onClick(View view) {
                 layout.setOrientation(1 - layout.getOrientation());
-                buttonOrientation.setText(layout.getOrientation() == FlowLayout.HORIZONTAL ?
+                buttonOrientation.setText(layout.getOrientation() == Common.HORIZONTAL ?
                         "Switch Orientation (Current: Horizontal)" :
                         "Switch Orientation (Current: Vertical)");
             }

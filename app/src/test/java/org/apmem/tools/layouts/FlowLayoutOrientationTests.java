@@ -19,7 +19,7 @@ public class FlowLayoutOrientationTests {
     public void VerticalOrientationLeftTopGravity() {
         final FlowLayout layout = new FlowLayout(activity.getApplicationContext());
         layout.setGravity(Gravity.LEFT | Gravity.TOP);
-        layout.setOrientation(FlowLayout.VERTICAL);
+        layout.setOrientation(Common.VERTICAL);
 
         final Button btn1 = new Button(activity);
         FlowLayout.LayoutParams lp1 = new FlowLayout.LayoutParams(30, 40);
@@ -53,7 +53,7 @@ public class FlowLayoutOrientationTests {
     public void VerticalOrientationLeftBottomGravity() {
         final FlowLayout layout = new FlowLayout(activity.getApplicationContext());
         layout.setGravity(Gravity.LEFT | Gravity.BOTTOM);
-        layout.setOrientation(FlowLayout.VERTICAL);
+        layout.setOrientation(Common.VERTICAL);
 
         final Button btn1 = new Button(activity);
         FlowLayout.LayoutParams lp1 = new FlowLayout.LayoutParams(30, 40);
@@ -87,7 +87,7 @@ public class FlowLayoutOrientationTests {
     public void HorizontalOrientationLeftBottomGravity() {
         final FlowLayout layout = new FlowLayout(activity.getApplicationContext());
         layout.setGravity(Gravity.LEFT | Gravity.BOTTOM);
-        layout.setOrientation(FlowLayout.HORIZONTAL);
+        layout.setOrientation(Common.HORIZONTAL);
 
         final Button btn1 = new Button(activity);
         FlowLayout.LayoutParams lp1 = new FlowLayout.LayoutParams(30, 40);
@@ -121,7 +121,7 @@ public class FlowLayoutOrientationTests {
     public void VerticalOrientationRelativeGravity() {
         final FlowLayout layout = new FlowLayout(activity.getApplicationContext());
         layout.setGravity(Gravity.START | Gravity.BOTTOM); // Actually it is not bottom, but right :)
-        layout.setOrientation(FlowLayout.VERTICAL);
+        layout.setOrientation(Common.VERTICAL);
 
         final Button btn1 = new Button(activity);
         FlowLayout.LayoutParams lp1 = new FlowLayout.LayoutParams(30, 40);

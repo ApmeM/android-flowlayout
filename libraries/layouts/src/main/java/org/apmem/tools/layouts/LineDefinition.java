@@ -24,7 +24,7 @@ class LineDefinition {
     }
 
     public void addView(int i, View child) {
-        final FlowLayout.LayoutParams lp = (FlowLayout.LayoutParams) child.getLayoutParams();
+        final Common.LayoutParams lp = (Common.LayoutParams) child.getLayoutParams();
 
         this.views.add(i, child);
 
@@ -33,7 +33,7 @@ class LineDefinition {
     }
 
     public boolean canFit(View child) {
-        final FlowLayout.LayoutParams lp = (FlowLayout.LayoutParams) child.getLayoutParams();
+        final Common.LayoutParams lp = (Common.LayoutParams) child.getLayoutParams();
         return lineLength + lp.getLength() + lp.getSpacingLength() <= maxLength;
     }
 
