@@ -60,7 +60,7 @@ public class FlowLayoutManager extends RecyclerView.LayoutManager {
         lines.clear();
         for (int i = 0; i < count; i++) {
             View child = recycler.getViewForPosition(i);
-            addView(child);
+            attachView(child);
             measureChildWithMargins(child, 0, 0);
 
             final LayoutParams lp = (LayoutParams) child.getLayoutParams();
@@ -147,6 +147,10 @@ public class FlowLayoutManager extends RecyclerView.LayoutManager {
 
         public LayoutParams(ViewGroup.LayoutParams layoutParams) {
             super(layoutParams);
+        }
+
+        public LayoutParams(int width, int height) {
+            super(width, height);
         }
 
         private void readStyleParameters(Context context, AttributeSet attributeSet) {

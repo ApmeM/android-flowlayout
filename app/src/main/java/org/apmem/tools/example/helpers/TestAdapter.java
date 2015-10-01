@@ -7,19 +7,20 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import org.apmem.tools.example.R;
+import org.apmem.tools.layouts.FlowLayoutManager;
 
 import java.util.List;
 
-public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHolder> {
+public class TestAdapter extends RecyclerView.Adapter<TestAdapter.ViewHolder> {
 
-    private List<String> mContacts;
+    private List<TestModel> models;
 
-    public ContactsAdapter(List<String> contacts) {
-        mContacts = contacts;
+    public TestAdapter(List<TestModel> models) {
+        this.models = models;
     }
 
     @Override
-    public ContactsAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public TestAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
@@ -29,16 +30,19 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(ContactsAdapter.ViewHolder viewHolder, int position) {
-        String contact = mContacts.get(position);
+    public void onBindViewHolder(TestAdapter.ViewHolder viewHolder, int position) {
+        TestModel model = this.models.get(position);
 
         TextView textView = viewHolder.nameTextView;
-        textView.setText(contact);
+        textView.setText(model.text);
+        FlowLayoutManager.LayoutParams params = new FlowLayoutManager.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        params.setNewLine(model.newLine);
+        textView.setLayoutParams(params);
     }
 
     @Override
     public int getItemCount() {
-        return mContacts.size();
+        return models.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
