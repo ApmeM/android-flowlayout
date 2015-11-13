@@ -4,11 +4,13 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
+
 import org.apmem.tools.layouts.logic.CommonLogic;
 import org.apmem.tools.layouts.logic.ConfigDefinition;
 import org.apmem.tools.layouts.logic.LineDefinition;
@@ -49,7 +51,16 @@ public class FlowLayout extends ViewGroup {
             this.config.setDebugDraw(a.getBoolean(R.styleable.FlowLayout_debugDraw, false));
             this.config.setWeightDefault(a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f));
             this.config.setGravity(a.getInteger(R.styleable.FlowLayout_android_gravity, Gravity.NO_GRAVITY));
-            this.config.setLayoutDirection(a.getInteger(R.styleable.FlowLayout_layoutDirection, View.LAYOUT_DIRECTION_LTR));
+
+            int layoutDirection;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                layoutDirection = a.getInteger(R.styleable.FlowLayout_layoutDirection, LAYOUT_DIRECTION_LTR);
+            } else {
+                layoutDirection = a.getInteger(R.styleable.FlowLayout_layoutDirection, super.getLayoutDirection());
+            }
+            //noinspection ResourceType
+            this.setLayoutDirection(layoutDirection);
+
         } finally {
             a.recycle();
         }
@@ -298,18 +309,31 @@ public class FlowLayout extends ViewGroup {
         this.requestLayout();
     }
 
+    @Override
     public int getLayoutDirection() {
         if (this.config == null) {
-            // Workaround for android sdk that wants to use virtual methods within constructor.
-            return View.LAYOUT_DIRECTION_LTR;
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                return View.LAYOUT_DIRECTION_LTR;
+            } else {
+                return super.getLayoutDirection();
+            }
         }
 
+        //noinspection ResourceType
         return this.config.getLayoutDirection();
     }
 
+    @Override
     public void setLayoutDirection(int layoutDirection) {
-        this.config.setLayoutDirection(layoutDirection);
-        this.requestLayout();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            super.setLayoutDirection(layoutDirection);
+        }
+
+        //noinspection ResourceType
+        if (this.config.getLayoutDirection() != layoutDirection) {
+            this.config.setLayoutDirection(layoutDirection);
+            requestLayout();
+        }
     }
 
     public static class LayoutParams extends MarginLayoutParams {
