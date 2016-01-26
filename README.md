@@ -88,7 +88,7 @@ Layout parameters:
 
 		* vertical - line will be in vertical direction, linebreak will create new column
 
-        * android:gravity - standart android gravity supported
+        * android:gravity - standard android gravity supported
 
 	* debugDraw - draw debug information
 
