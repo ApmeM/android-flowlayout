@@ -104,7 +104,7 @@ Child layout parameters:
 
 	* android:layout_margin* - override default spacings
 
-	* android:layout_gravity - standart aandroid gravity supported
+	* android:layout_gravity - standard android gravity supported
 
         * layout_weight - weight of the element. If not specified "layout.defaultWight" is used.
 
