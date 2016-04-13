@@ -8,8 +8,8 @@ version = VERSION_NAME
 group = GROUP
 
 android {
-  compileSdkVersion 21
-  buildToolsVersion '21.1.2'
+  compileSdkVersion 23
+  buildToolsVersion '23.0.3'
 
   defaultConfig {
     versionName project.VERSION_NAME
@@ -21,7 +21,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:recyclerview-v7:23.0.1'
+    compile 'com.android.support:recyclerview-v7:23.3.0'
 }
 
 apply from: 'maven_push.gradle'
