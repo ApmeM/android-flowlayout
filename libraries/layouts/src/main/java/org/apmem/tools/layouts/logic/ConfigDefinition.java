@@ -14,6 +14,7 @@ public class ConfigDefinition {
     private boolean checkCanFit;
     private int widthMode;
     private int heightMode;
+    private int maxLines = 0;
 
     public ConfigDefinition() {
         this.setOrientation(CommonLogic.HORIZONTAL);
@@ -110,5 +111,13 @@ public class ConfigDefinition {
 
     public int getThicknessMode() {
         return this.orientation == CommonLogic.HORIZONTAL ? this.heightMode : this.widthMode;
+    }
+
+    public int getMaxLines() {
+        return this.maxLines;
+    }
+
+    public void setMaxLines(int maxLines) {
+        this.maxLines = maxLines;
     }
 }

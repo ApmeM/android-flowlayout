@@ -312,6 +312,14 @@ public class FlowLayout extends ViewGroup {
         this.requestLayout();
     }
 
+    public int getMaxLines() {
+        return this.config.getMaxLines();
+    }
+
+    public void setMaxLines(int maxLines) {
+        this.config.setMaxLines(maxLines);
+    }
+
     public static class LayoutParams extends MarginLayoutParams {
         @ViewDebug.ExportedProperty(mapping = {
                 @ViewDebug.IntToString(from = Gravity.NO_GRAVITY, to = "NONE"),
