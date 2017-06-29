@@ -108,7 +108,7 @@ Child layout parameters:
 
         * layout_weight - weight of the element. If not specified "layout.defaultWight" is used.
 
-	* layout_newLine - brake line before current element even if there is enough place in the current line.
+	* layout_newLine - break line before current element even if there is enough place in the current line.
 
 ## Copyrights
 
