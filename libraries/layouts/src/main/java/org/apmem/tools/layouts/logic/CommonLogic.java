@@ -206,6 +206,10 @@ public class CommonLogic {
             final ViewDefinition child = views.get(i);
 
             boolean newLine = child.isNewLine() || (config.isCheckCanFit() && !currentLine.canFit(child));
+
+            if (newLine && config.getMaxLines() > 0 && lines.size() == config.getMaxLines())
+                break;
+
             if (newLine) {
                 currentLine = new LineDefinition(config);
                 if (config.getOrientation() == CommonLogic.VERTICAL && config.getLayoutDirection() == View.LAYOUT_DIRECTION_RTL) {

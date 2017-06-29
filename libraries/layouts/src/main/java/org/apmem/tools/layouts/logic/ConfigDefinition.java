@@ -4,16 +4,17 @@ import android.view.Gravity;
 import android.view.View;
 
 public class ConfigDefinition {
-    private int orientation = CommonLogic.HORIZONTAL;
-    private boolean debugDraw = false;
-    private float weightDefault = 0;
-    private int gravity = Gravity.LEFT | Gravity.TOP;
-    private int layoutDirection = View.LAYOUT_DIRECTION_LTR;
+    private int orientation;
+    private boolean debugDraw;
+    private float weightDefault;
+    private int gravity;
+    private int layoutDirection;
     private int maxWidth;
     private int maxHeight;
     private boolean checkCanFit;
     private int widthMode;
     private int heightMode;
+    private int maxLines;
 
     public ConfigDefinition() {
         this.setOrientation(CommonLogic.HORIZONTAL);
@@ -22,6 +23,7 @@ public class ConfigDefinition {
         this.setGravity(Gravity.NO_GRAVITY);
         this.setLayoutDirection(View.LAYOUT_DIRECTION_LTR);
         this.setCheckCanFit(true);
+        this.setMaxLines(0);
     }
 
     public int getOrientation() {
@@ -110,5 +112,13 @@ public class ConfigDefinition {
 
     public int getThicknessMode() {
         return this.orientation == CommonLogic.HORIZONTAL ? this.heightMode : this.widthMode;
+    }
+
+    public int getMaxLines() {
+        return this.maxLines;
+    }
+
+    public void setMaxLines(int maxLines) {
+        this.maxLines = maxLines;
     }
 }

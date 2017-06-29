@@ -46,6 +46,7 @@ public class FlowLayout extends ViewGroup {
         TypedArray a = context.obtainStyledAttributes(attributeSet, R.styleable.FlowLayout);
         try {
             this.config.setOrientation(a.getInteger(R.styleable.FlowLayout_android_orientation, CommonLogic.HORIZONTAL));
+            this.config.setMaxLines(a.getInteger(R.styleable.FlowLayout_maxLines, 0));
             this.config.setDebugDraw(a.getBoolean(R.styleable.FlowLayout_debugDraw, false));
             this.config.setWeightDefault(a.getFloat(R.styleable.FlowLayout_weightDefault, 0.0f));
             this.config.setGravity(a.getInteger(R.styleable.FlowLayout_android_gravity, Gravity.NO_GRAVITY));
@@ -309,6 +310,15 @@ public class FlowLayout extends ViewGroup {
 
     public void setLayoutDirection(int layoutDirection) {
         this.config.setLayoutDirection(layoutDirection);
+        this.requestLayout();
+    }
+
+    public int getMaxLines() {
+        return this.config.getMaxLines();
+    }
+
+    public void setMaxLines(int maxLines) {
+        this.config.setMaxLines(maxLines);
         this.requestLayout();
     }
 
