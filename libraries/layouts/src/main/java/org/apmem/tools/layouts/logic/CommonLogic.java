@@ -34,7 +34,7 @@ public class CommonLogic {
             return;
         }
 
-        final int totalWeight = linesCount;
+        int remainingWeight = linesCount;
         LineDefinition lastLine = lines.get(linesCount - 1);
         int excessThickness = realControlThickness - (lastLine.getLineThickness() + lastLine.getLineStartThickness());
 
@@ -47,7 +47,10 @@ public class CommonLogic {
             final LineDefinition child = lines.get(i);
             int weight = 1;
             int gravity = getGravity(null, config);
-            int extraThickness = Math.round(excessThickness * weight / totalWeight);
+            int extraThickness = Math.round(excessThickness * weight / remainingWeight);
+
+            excessThickness -= extraThickness;
+            remainingWeight -= weight;
 
             final int childLength = child.getLineLength();
             final int childThickness = child.getLineThickness();
@@ -78,25 +81,28 @@ public class CommonLogic {
             return;
         }
 
-        float totalWeight = 0;
+        float remainingWeight = 0;
         for (int i = 0; i < viewCount; i++) {
             final ViewDefinition child = views.get(i);
-            totalWeight += getWeight(child, config);
+            remainingWeight += getWeight(child, config);
         }
+        final boolean weightBased = remainingWeight > 0;
 
         ViewDefinition lastChild = views.get(viewCount - 1);
-        int excessLength = line.getLineLength() - (lastChild.getLength() + lastChild.getSpacingLength() + lastChild.getInlineStartLength());
+        int excessLengthRemaining = line.getLineLength() - (lastChild.getLength() + lastChild.getSpacingLength() + lastChild.getInlineStartLength());
         int excessOffset = 0;
         for (int i = 0; i < viewCount; i++) {
             final ViewDefinition child = views.get(i);
             float weight = getWeight(child, config);
             int gravity = getGravity(child, config);
             int extraLength;
-            if (totalWeight == 0) {
-                extraLength = excessLength / viewCount;
+            if (!weightBased) {
+                extraLength = excessLengthRemaining / (viewCount - i);
             } else {
-                extraLength = Math.round(excessLength * weight / totalWeight);
+                extraLength = Math.round(excessLengthRemaining * weight / remainingWeight);
+                remainingWeight -= weight;
             }
+            excessLengthRemaining -= extraLength;
 
             final int childLength = child.getLength() + child.getSpacingLength();
             final int childThickness = child.getThickness() + child.getSpacingThickness();

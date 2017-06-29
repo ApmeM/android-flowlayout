@@ -107,7 +107,7 @@ public class CommonLogicTests {
         Assert.assertEquals(2, lines.size());
         Assert.assertEquals(10, lines.get(0).getViews().get(0).getWidth());
         Assert.assertEquals(10, lines.get(0).getViews().get(1).getWidth());
-        Assert.assertEquals(10, lines.get(0).getViews().get(2).getWidth());
+        Assert.assertEquals(11, lines.get(0).getViews().get(2).getWidth());
     }
 
     @Test
@@ -155,6 +155,6 @@ public class CommonLogicTests {
 
         Assert.assertEquals(2, lines.size());
         Assert.assertEquals(10, lines.get(0).getViews().get(0).getHeight());
-        Assert.assertEquals(10, lines.get(1).getViews().get(0).getHeight());
+        Assert.assertEquals(11, lines.get(1).getViews().get(0).getHeight());
     }
 }
